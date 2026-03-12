@@ -14,6 +14,7 @@ use AlsendoOne\SDK\DTO\Response\ServiceStructure;
 use AlsendoOne\SDK\DTO\Response\TurnInResponse;
 use AlsendoOne\SDK\DTO\Response\Valuation;
 use AlsendoOne\SDK\DTO\Response\WaybillResponse;
+use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Http\HttpClientInterface;
 use AlsendoOne\SDK\Http\Response;
@@ -39,7 +40,7 @@ class ApaczkaClientTest extends TestCase
     {
         $responseData = [
             'services' => [
-                52 => ['id' => 52, 'name' => 'DPD', 'supplier' => 'DPD'],
+                41 => ['id' => 41, 'name' => 'InPost Paczkomat', 'supplier' => 'INPOST'],
             ],
             'options' => [],
             'package_type' => [],
@@ -53,7 +54,7 @@ class ApaczkaClientTest extends TestCase
 
         $this->assertInstanceOf(ServiceStructure::class, $result);
         $this->assertCount(1, $result->getServices());
-        $this->assertSame('DPD', $result->getServices()[52]['name']);
+        $this->assertSame('InPost Paczkomat', $result->getServices()[41]['name']);
     }
 
     public function testGetOrder(): void
@@ -62,7 +63,7 @@ class ApaczkaClientTest extends TestCase
             'order' => [
                 'id' => 123,
                 'supplier' => 'DPD',
-                'service_id' => 52,
+                'service_id' => 41,
                 'service_name' => 'DPD Classic',
                 'waybill_number' => 'WB123',
                 'pickup' => null,
@@ -94,7 +95,7 @@ class ApaczkaClientTest extends TestCase
         $this->assertSame(123, $result->getId());
         $this->assertSame('new', $result->getStatus());
         $this->assertSame('DPD', $result->getSupplier());
-        $this->assertSame(52, $result->getServiceId());
+        $this->assertSame(Service::InPostPaczkomat, $result->getService());
     }
 
     public function testGetOrders(): void
@@ -103,7 +104,7 @@ class ApaczkaClientTest extends TestCase
             'orders' => [
                 [
                     'id' => 1,
-                    'service_id' => 52,
+                    'service_id' => 41,
                     'service_name' => 'DPD Classic',
                     'waybill_number' => 'WB001',
                     'pickup_number' => null,
@@ -120,7 +121,7 @@ class ApaczkaClientTest extends TestCase
                 ],
                 [
                     'id' => 2,
-                    'service_id' => 53,
+                    'service_id' => 42,
                     'service_name' => 'DHL Standard',
                     'waybill_number' => 'WB002',
                     'pickup_number' => null,
@@ -170,7 +171,7 @@ class ApaczkaClientTest extends TestCase
         $responseData = [
             'order' => [
                 'id' => 456,
-                'service_id' => 52,
+                'service_id' => 41,
                 'service_name' => 'DPD Classic',
                 'waybill_number' => 'ABC123',
                 'pickup_number' => null,
@@ -188,7 +189,7 @@ class ApaczkaClientTest extends TestCase
         ];
         $this->mockPostResponse('https://api.example.com/api/v2/order_send/', $responseData);
 
-        $result = $this->client->sendOrder(['service_id' => 52]);
+        $result = $this->client->sendOrder(['service_id' => 41]);
 
         $this->assertInstanceOf(OrderShort::class, $result);
         $this->assertSame(456, $result->getId());
@@ -208,7 +209,7 @@ class ApaczkaClientTest extends TestCase
     {
         $responseData = [
             'price_table' => [
-                52 => [
+                41 => [
                     'price' => 1500,
                     'price_gross' => 1845,
                     'options' => [],
@@ -218,12 +219,12 @@ class ApaczkaClientTest extends TestCase
         ];
         $this->mockPostResponse('https://api.example.com/api/v2/order_valuation/', $responseData);
 
-        $result = $this->client->getValuation(['service_id' => 52]);
+        $result = $this->client->getValuation(['service_id' => 41]);
 
         $this->assertInstanceOf(Valuation::class, $result);
-        $this->assertNotNull($result->getPriceForService(52));
-        $this->assertSame(1500, $result->getPriceForService(52)->getPrice());
-        $this->assertSame(1845, $result->getPriceForService(52)->getPriceGross());
+        $this->assertNotNull($result->getPriceForService(Service::InPostPaczkomat));
+        $this->assertSame(1500, $result->getPriceForService(Service::InPostPaczkomat)->getPrice());
+        $this->assertSame(1845, $result->getPriceForService(Service::InPostPaczkomat)->getPriceGross());
     }
 
     public function testGetPickupHours(): void
@@ -234,7 +235,7 @@ class ApaczkaClientTest extends TestCase
                 '2024-01-15' => [
                     'date' => '2024-01-15',
                     'services' => [
-                        52 => ['from' => '08:00', 'to' => '18:00'],
+                        41 => ['from' => '08:00', 'to' => '18:00'],
                     ],
                 ],
             ],

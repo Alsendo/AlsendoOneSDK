@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace AlsendoOne\SDK\DTO\Request;
 
 use AlsendoOne\SDK\DTO\Address;
+use AlsendoOne\SDK\Enum\Service;
 
 class OrderRequest
 {
-    private ?int $serviceId = null;
+    private ?Service $service = null;
     private ?Address $senderAddress = null;
     private ?Address $receiverAddress = null;
     /** @var ShipmentRequest[] */
@@ -29,9 +30,9 @@ class OrderRequest
         return new self();
     }
 
-    public function setServiceId(?int $serviceId): self
+    public function setService(?Service $service): self
     {
-        $this->serviceId = $serviceId;
+        $this->service = $service;
 
         return $this;
     }
@@ -149,7 +150,7 @@ class OrderRequest
     public function toArray(): array
     {
         $data = [
-            'service_id' => $this->serviceId,
+            'service_id' => $this->service?->value,
             'address' => ($this->senderAddress !== null || $this->receiverAddress !== null)
                 ? array_filter([
                     'sender' => $this->senderAddress !== null ? $this->senderAddress->toArray() : null,

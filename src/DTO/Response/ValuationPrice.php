@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace AlsendoOne\SDK\DTO\Response;
 
+use AlsendoOne\SDK\Enum\Service;
+
 class ValuationPrice
 {
-    private int $serviceId;
+    private Service $service;
     private int $price;
     private int $priceGross;
     /** @var ValuationOption[] */
@@ -19,13 +21,13 @@ class ValuationPrice
      * @param ValuationShipment[] $shipments
      */
     private function __construct(
-        int $serviceId,
+        Service $service,
         int $price,
         int $priceGross,
         array $options,
         array $shipments
     ) {
-        $this->serviceId = $serviceId;
+        $this->service = $service;
         $this->price = $price;
         $this->priceGross = $priceGross;
         $this->options = $options;
@@ -35,7 +37,7 @@ class ValuationPrice
     /**
      * @param array<string, mixed> $data
      */
-    public static function fromArray(int $serviceId, array $data): self
+    public static function fromArray(Service $service, array $data): self
     {
         $options = [];
         if (isset($data['options']) && is_array($data['options'])) {
@@ -52,7 +54,7 @@ class ValuationPrice
         }
 
         return new self(
-            $serviceId,
+            $service,
             (int) ($data['price'] ?? 0),
             (int) ($data['price_gross'] ?? 0),
             $options,
@@ -60,9 +62,9 @@ class ValuationPrice
         );
     }
 
-    public function getServiceId(): int
+    public function getService(): Service
     {
-        return $this->serviceId;
+        return $this->service;
     }
 
     public function getPrice(): int

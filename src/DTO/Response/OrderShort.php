@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace AlsendoOne\SDK\DTO\Response;
 
 use AlsendoOne\SDK\DTO\Address;
+use AlsendoOne\SDK\Enum\Service;
 
 class OrderShort
 {
     private int $id;
-    private int $serviceId;
+    private Service $service;
     private string $serviceName;
     private string $waybillNumber;
     private ?string $pickupNumber;
@@ -26,7 +27,7 @@ class OrderShort
 
     private function __construct(
         int $id,
-        int $serviceId,
+        Service $service,
         string $serviceName,
         string $waybillNumber,
         ?string $pickupNumber,
@@ -42,7 +43,7 @@ class OrderShort
         string $supplier
     ) {
         $this->id = $id;
-        $this->serviceId = $serviceId;
+        $this->service = $service;
         $this->serviceName = $serviceName;
         $this->waybillNumber = $waybillNumber;
         $this->pickupNumber = $pickupNumber;
@@ -65,7 +66,7 @@ class OrderShort
     {
         return new self(
             (int) ($data['id'] ?? 0),
-            (int) ($data['service_id'] ?? 0),
+            Service::from((int) ($data['service_id'] ?? 0)),
             (string) ($data['service_name'] ?? ''),
             (string) ($data['waybill_number'] ?? ''),
             $data['pickup_number'] ?? null,
@@ -87,9 +88,9 @@ class OrderShort
         return $this->id;
     }
 
-    public function getServiceId(): int
+    public function getService(): Service
     {
-        return $this->serviceId;
+        return $this->service;
     }
 
     public function getServiceName(): string

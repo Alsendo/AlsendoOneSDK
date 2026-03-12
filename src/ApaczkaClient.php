@@ -6,6 +6,7 @@ namespace AlsendoOne\SDK;
 
 use AlsendoOne\SDK\Auth\SignatureGenerator;
 use AlsendoOne\SDK\DTO\Request\OrderRequest;
+use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\DTO\Response\AccessPoint;
 use AlsendoOne\SDK\DTO\Response\Order;
 use AlsendoOne\SDK\DTO\Response\OrderShort;
@@ -147,14 +148,14 @@ class ApaczkaClient
      * Get available pickup hours for postal code.
      *
      * @param string $postalCode Sender postal code
-     * @param int|null $serviceId Optional service ID filter
+     * @param Service|null $service Optional service filter
      * @throws ApiException
      */
-    public function getPickupHours(string $postalCode, ?int $serviceId = null): PickupHoursResponse
+    public function getPickupHours(string $postalCode, ?Service $service = null): PickupHoursResponse
     {
         $params = ['postal_code' => $postalCode];
-        if ($serviceId !== null) {
-            $params['service_id'] = $serviceId;
+        if ($service !== null) {
+            $params['service_id'] = $service->value;
         }
         $data = $this->request('pickup_hours/', $params)->getResponseData();
 

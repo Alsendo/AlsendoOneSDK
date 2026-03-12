@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AlsendoOne\SDK\DTO\Response;
 
+use AlsendoOne\SDK\Enum\Service;
+
 class Valuation
 {
     /** @var array<int, ValuationPrice> */
@@ -27,7 +29,8 @@ class Valuation
         $rawTable = $data['price_table'] ?? [];
         if (is_array($rawTable)) {
             foreach ($rawTable as $serviceId => $entry) {
-                $priceTable[(int) $serviceId] = ValuationPrice::fromArray((int) $serviceId, $entry);
+                $service = Service::from((int) $serviceId);
+                $priceTable[$service->value] = ValuationPrice::fromArray($service, $entry);
             }
         }
 
@@ -42,8 +45,8 @@ class Valuation
         return $this->priceTable;
     }
 
-    public function getPriceForService(int $serviceId): ?ValuationPrice
+    public function getPriceForService(Service $service): ?ValuationPrice
     {
-        return $this->priceTable[$serviceId] ?? null;
+        return $this->priceTable[$service->value] ?? null;
     }
 }
