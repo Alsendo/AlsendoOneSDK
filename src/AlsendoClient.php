@@ -6,7 +6,6 @@ namespace AlsendoOne\SDK;
 
 use AlsendoOne\SDK\Auth\SignatureGenerator;
 use AlsendoOne\SDK\DTO\Request\OrderRequest;
-use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\DTO\Response\AccessPoint;
 use AlsendoOne\SDK\DTO\Response\Order;
 use AlsendoOne\SDK\DTO\Response\OrderShort;
@@ -20,15 +19,16 @@ use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Http\GuzzleHttpClient;
 use AlsendoOne\SDK\Http\HttpClientInterface;
 use AlsendoOne\SDK\Http\Response;
+use AlsendoOne\SDK\Type\Service;
 
 /**
- * Apaczka API v2 client with typed request/response DTOs.
+ * Alsendo API v2 client with typed request/response DTOs.
  *
  * All public methods return strongly-typed DTOs. For raw (untyped) array access,
  * use the {@see request()} method directly, which returns a {@see Response} object
  * with {@see Response::getResponseData()} providing the raw array.
  */
-class ApaczkaClient
+class AlsendoClient
 {
     private const DEFAULT_BASE_URL = 'https://www.apaczka.pl/api/v2/';
 

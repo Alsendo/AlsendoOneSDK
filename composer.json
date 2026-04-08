@@ -1,12 +1,12 @@
 {
     "name": "alsendo/alsendo-one-sdk",
-    "description": "AlsendoOne SDK — official PHP client for Apaczka API v2",
+    "description": "AlsendoOne SDK — official PHP client for Alsendo API v2",
     "type": "library",
     "license": "MIT",
-    "keywords": ["apaczka", "alsendo", "shipping", "api", "sdk", "courier"],
+    "keywords": ["alsendo", "shipping", "api", "sdk", "courier"],
     "homepage": "https://github.com/Alsendo/AlsendoOneSDK",
     "require": {
-        "php": ">=8.1",
+        "php": ">=7.4",
         "ext-json": "*",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.0"
@@ -31,6 +31,12 @@
         "psr-4": {
             "AlsendoOne\\SDK\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "phpstan": "phpstan analyse",
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix"
     },
     "config": {
         "sort-packages": true

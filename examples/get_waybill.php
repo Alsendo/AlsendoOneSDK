@@ -8,7 +8,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use AlsendoOne\SDK\ApaczkaClient;
+use AlsendoOne\SDK\AlsendoClient;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Exception\ConnectionException;
 
@@ -22,7 +22,7 @@ $orderId = 123456;
 // Output directory for the PDF file
 $outputDir = __DIR__ . '/output';
 
-$client = new ApaczkaClient($appId, $appSecret);
+$client = new AlsendoClient($appId, $appSecret);
 
 try {
     echo "Fetching waybill for order #" . $orderId . "..." . PHP_EOL;

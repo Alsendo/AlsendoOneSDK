@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace AlsendoOne\SDK\Exception;
 
-class ValidationException extends ApaczkaException
+class ValidationException extends AlsendoException
 {
 }

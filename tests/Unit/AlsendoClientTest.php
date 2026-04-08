@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AlsendoOne\SDK\Tests\Unit;
 
-use AlsendoOne\SDK\ApaczkaClient;
+use AlsendoOne\SDK\AlsendoClient;
 use AlsendoOne\SDK\DTO\Response\AccessPoint;
 use AlsendoOne\SDK\DTO\Response\Order;
 use AlsendoOne\SDK\DTO\Response\OrderShort;
@@ -14,21 +14,21 @@ use AlsendoOne\SDK\DTO\Response\ServiceStructure;
 use AlsendoOne\SDK\DTO\Response\TurnInResponse;
 use AlsendoOne\SDK\DTO\Response\Valuation;
 use AlsendoOne\SDK\DTO\Response\WaybillResponse;
-use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Http\HttpClientInterface;
 use AlsendoOne\SDK\Http\Response;
+use AlsendoOne\SDK\Type\Service;
 use PHPUnit\Framework\TestCase;
 
-class ApaczkaClientTest extends TestCase
+class AlsendoClientTest extends TestCase
 {
     private HttpClientInterface $httpClient;
-    private ApaczkaClient $client;
+    private AlsendoClient $client;
 
     protected function setUp(): void
     {
         $this->httpClient = $this->createMock(HttpClientInterface::class);
-        $this->client = new ApaczkaClient(
+        $this->client = new AlsendoClient(
             'test_app_id',
             'test_app_secret',
             $this->httpClient,
@@ -95,7 +95,7 @@ class ApaczkaClientTest extends TestCase
         $this->assertSame(123, $result->getId());
         $this->assertSame('new', $result->getStatus());
         $this->assertSame('DPD', $result->getSupplier());
-        $this->assertSame(Service::InPostPaczkomat, $result->getService());
+        $this->assertSame(Service::InPostPaczkomat, $result->getService()->value);
     }
 
     public function testGetOrders(): void
@@ -222,9 +222,10 @@ class ApaczkaClientTest extends TestCase
         $result = $this->client->getValuation(['service_id' => 41]);
 
         $this->assertInstanceOf(Valuation::class, $result);
-        $this->assertNotNull($result->getPriceForService(Service::InPostPaczkomat));
-        $this->assertSame(1500, $result->getPriceForService(Service::InPostPaczkomat)->getPrice());
-        $this->assertSame(1845, $result->getPriceForService(Service::InPostPaczkomat)->getPriceGross());
+        $service = Service::from(Service::InPostPaczkomat);
+        $this->assertNotNull($result->getPriceForService($service));
+        $this->assertSame(1500, $result->getPriceForService($service)->getPrice());
+        $this->assertSame(1845, $result->getPriceForService($service)->getPriceGross());
     }
 
     public function testGetPickupHours(): void
@@ -371,7 +372,7 @@ class ApaczkaClientTest extends TestCase
 
     public function testBaseUrlTrailingSlashHandled(): void
     {
-        $client = new ApaczkaClient('id', 'secret', $this->httpClient, 'https://api.example.com/api/v2');
+        $client = new AlsendoClient('id', 'secret', $this->httpClient, 'https://api.example.com/api/v2');
 
         $this->httpClient->method('post')
             ->willReturnCallback(function (string $url) {

@@ -5,7 +5,7 @@
 [![PHP Version](https://img.shields.io/packagist/php-v/alsendo/alsendo-one-sdk.svg)](https://packagist.org/packages/alsendo/alsendo-one-sdk)
 [![License](https://img.shields.io/packagist/l/alsendo/alsendo-one-sdk.svg)](https://github.com/Alsendo/AlsendoOneSDK/blob/main/LICENSE)
 
-Official PHP client for [Apaczka API v2](https://www.apaczka.pl/api/v2/). Ship parcels with 20+ couriers through a single integration.
+Official PHP client for [Alsendo API v2](https://www.apaczka.pl/api/v2/). Ship parcels with 20+ couriers through a single integration.
 
 ## Requirements
 
@@ -32,18 +32,18 @@ composer require guzzlehttp/guzzle guzzlehttp/psr7
 
 require __DIR__ . '/vendor/autoload.php';
 
-use AlsendoOne\SDK\ApaczkaClient;
+use AlsendoOne\SDK\AlsendoClient;
 
-$client = new ApaczkaClient(
+$client = new AlsendoClient(
     'your_app_id',
     'your_app_secret'
 );
 
 // Fetch available services
-$services = $client->getServiceStructure();
+$structure = $client->getServiceStructure();
 
-foreach ($services['services'] as $service) {
-    echo $service['name'] . ' (ID: ' . $service['id'] . ')' . PHP_EOL;
+foreach ($structure->getServices() as $id => $service) {
+    echo $service['name'] . ' (ID: ' . $id . ')' . PHP_EOL;
 }
 ```
 
@@ -79,13 +79,13 @@ You can obtain your API credentials in the [Apaczka panel](https://www.apaczka.p
 
 | Method | Description |
 |--------|-------------|
-| `getValuation(array $orderData)` | Get a price quote for given shipment parameters. Prices are returned **in groszy** (1 PLN = 100 groszy) |
+| `getValuation(OrderRequest\|array $orderData)` | Get a price quote for given shipment parameters. Prices are returned **in groszy** (1 PLN = 100 groszy) |
 
 ### Orders
 
 | Method | Description |
 |--------|-------------|
-| `sendOrder(array $orderData)` | Create a new shipment order |
+| `sendOrder(OrderRequest\|array $orderData)` | Create a new shipment order |
 | `getOrder(int $orderId)` | Get details of a single order |
 | `getOrders(int $page = 1, int $limit = 10)` | List orders with pagination (max 25 per page) |
 | `cancelOrder(int $orderId)` | Cancel an order |
@@ -94,7 +94,7 @@ You can obtain your API credentials in the [Apaczka panel](https://www.apaczka.p
 
 | Method | Description |
 |--------|-------------|
-| `getPickupHours(string $postalCode, ?int $serviceId = null)` | Get available pickup time windows for a postal code |
+| `getPickupHours(string $postalCode, ?Service $service = null)` | Get available pickup time windows for a postal code |
 | `schedulePickup(int $orderId, string $date, string $hourFrom, string $hourTo)` | Schedule courier pickup for one order |
 | `scheduleBatchPickup(array $orderIds, string $date, string $hourFrom, string $hourTo)` | Schedule courier pickup for multiple orders |
 
@@ -113,7 +113,7 @@ You can obtain your API credentials in the [Apaczka panel](https://www.apaczka.p
 
 ## Error handling
 
-The SDK throws specific exceptions depending on the error type. All exceptions extend `AlsendoOne\SDK\Exception\ApaczkaException`.
+The SDK throws specific exceptions depending on the error type. All exceptions extend `AlsendoOne\SDK\Exception\AlsendoException`.
 
 ```php
 use AlsendoOne\SDK\Exception\ApiException;
@@ -147,6 +147,7 @@ try {
 The SDK uses Guzzle by default. You can replace it with any HTTP client by implementing `HttpClientInterface`:
 
 ```php
+use AlsendoOne\SDK\AlsendoClient;
 use AlsendoOne\SDK\Http\HttpClientInterface;
 use AlsendoOne\SDK\Http\Response;
 
@@ -167,13 +168,13 @@ class MyHttpClient implements HttpClientInterface
     }
 }
 
-$client = new ApaczkaClient('app_id', 'app_secret', new MyHttpClient());
+$client = new AlsendoClient('app_id', 'app_secret', new MyHttpClient());
 ```
 
 You can also override the base URL (useful for staging environments):
 
 ```php
-$client = new ApaczkaClient(
+$client = new AlsendoClient(
     'app_id',
     'app_secret',
     null,                                    // use default Guzzle client

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace AlsendoOne\SDK\DTO\Response;
 
 use AlsendoOne\SDK\DTO\Address;
-use AlsendoOne\SDK\Enum\Service;
+use AlsendoOne\SDK\Type\Service;
 
 class OrderShort
 {

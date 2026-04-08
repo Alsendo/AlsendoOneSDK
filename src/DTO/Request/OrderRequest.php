@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace AlsendoOne\SDK\DTO\Request;
 
 use AlsendoOne\SDK\DTO\Address;
-use AlsendoOne\SDK\Enum\Service;
+use AlsendoOne\SDK\Type\Service;
 
 class OrderRequest
 {
@@ -150,7 +150,7 @@ class OrderRequest
     public function toArray(): array
     {
         $data = [
-            'service_id' => $this->service?->value,
+            'service_id' => $this->service !== null ? $this->service->value : null,
             'address' => ($this->senderAddress !== null || $this->receiverAddress !== null)
                 ? array_filter([
                     'sender' => $this->senderAddress !== null ? $this->senderAddress->toArray() : null,
