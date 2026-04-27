@@ -118,4 +118,24 @@ class PointAddress
     {
         return $this->latitude;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return array_filter([
+            'line1' => $this->line1,
+            'line2' => $this->line2,
+            'street' => $this->street,
+            'house_number' => $this->houseNumber,
+            'flat_number' => $this->flatNumber,
+            'postal_code' => $this->postalCode,
+            'city' => $this->city,
+            'state_code' => $this->stateCode,
+            'country_code' => $this->countryCode,
+            'longitude' => $this->longitude,
+            'latitude' => $this->latitude,
+        ], static fn ($v): bool => $v !== null);
+    }
 }

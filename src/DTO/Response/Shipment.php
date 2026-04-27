@@ -136,4 +136,26 @@ class Shipment
     {
         return $this->priceGross;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'shipment_type_code' => $this->shipmentTypeCode,
+            'weight' => $this->weight,
+            'weight_billable' => $this->weightBillable,
+            'length' => $this->length,
+            'width' => $this->width,
+            'height' => $this->height,
+            'content' => $this->content,
+            'comment' => $this->comment,
+            'waybill_number' => $this->waybillNumber,
+            'is_nstd' => $this->isNstd,
+            'price' => $this->price,
+            'price_vat' => $this->priceVat,
+            'price_gross' => $this->priceGross,
+        ];
+    }
 }

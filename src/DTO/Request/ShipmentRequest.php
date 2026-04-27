@@ -126,9 +126,9 @@ class ShipmentRequest
         $data = [
             'shipment_type_code' => $this->shipmentTypeCode,
             'weight' => $this->weight,
-            'length' => $this->length,
-            'width' => $this->width,
-            'height' => $this->height,
+            'dimension1' => $this->length,
+            'dimension2' => $this->width,
+            'dimension3' => $this->height,
             'content' => $this->content,
             'comment' => $this->comment,
             'customs_data' => $this->customsData !== null

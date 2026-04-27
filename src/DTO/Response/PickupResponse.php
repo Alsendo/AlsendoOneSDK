@@ -27,4 +27,12 @@ class PickupResponse
     {
         return $this->foreignCourierId;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return ['foreign_courier_id' => $this->foreignCourierId];
+    }
 }

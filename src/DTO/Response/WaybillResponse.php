@@ -37,4 +37,17 @@ class WaybillResponse
     {
         return $this->type;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        $raw = $this->waybill;
+        return [
+            'type' => $this->type,
+            'size_bytes' => strlen(base64_decode($raw) ?: $raw),
+            'waybill_base64_preview' => substr($raw, 0, 60) . (strlen($raw) > 60 ? '...[truncated]' : ''),
+        ];
+    }
 }

@@ -113,8 +113,8 @@ class Order
             Service::from((int) ($data['service_id'] ?? 0)),
             (string) ($data['service_name'] ?? ''),
             (string) ($data['waybill_number'] ?? ''),
-            $data['pickup'] ?? null,
-            $data['pickup_number'] ?? null,
+            isset($data['pickup']) && is_string($data['pickup']) ? $data['pickup'] : null,
+            isset($data['pickup_number']) && is_string($data['pickup_number']) ? $data['pickup_number'] : null,
             (string) ($data['tracking_url'] ?? ''),
             (string) ($data['status'] ?? ''),
             (int) ($data['shipments_count'] ?? 0),
@@ -126,12 +126,12 @@ class Order
             (string) ($data['created'] ?? ''),
             $data['delivered'] ?? null,
             (int) ($data['price'] ?? 0),
-            (int) ($data['price_var'] ?? 0),
+            (int) ($data['price_vat'] ?? 0),
             (int) ($data['price_gross'] ?? 0),
             $cod !== false ? (int) $cod : false,
             $data['cod_currency'] ?? null,
             $declarationValue !== false ? (int) $declarationValue : false,
-            $data['externalId'] ?? null
+            isset($data['externalId']) && $data['externalId'] !== false ? (string) $data['externalId'] : null
         );
     }
 
@@ -262,5 +262,38 @@ class Order
     public function getExternalId(): ?string
     {
         return $this->externalId;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'supplier' => $this->supplier,
+            'service_id' => $this->service->value,
+            'service_name' => $this->serviceName,
+            'waybill_number' => $this->waybillNumber,
+            'pickup' => $this->pickup,
+            'pickup_number' => $this->pickupNumber,
+            'tracking_url' => $this->trackingUrl,
+            'status' => $this->status,
+            'shipments_count' => $this->shipmentsCount,
+            'shipments' => array_map(static fn (Shipment $s): array => $s->toArray(), $this->shipments),
+            'content' => $this->content,
+            'comment' => $this->comment,
+            'sender' => $this->sender->toArray(),
+            'receiver' => $this->receiver->toArray(),
+            'created' => $this->created,
+            'delivered' => $this->delivered,
+            'price' => $this->price,
+            'price_vat' => $this->priceVat,
+            'price_gross' => $this->priceGross,
+            'cod' => $this->cod,
+            'cod_currency' => $this->codCurrency,
+            'declaration_value' => $this->declarationValue,
+            'external_id' => $this->externalId,
+        ];
     }
 }

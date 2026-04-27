@@ -53,4 +53,19 @@ class PickupHoursResponse
     {
         return $this->hours;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        $hours = [];
+        foreach ($this->hours as $date => $day) {
+            $hours[$date] = $day->toArray();
+        }
+        return [
+            'postal_code' => $this->postalCode,
+            'hours' => $hours,
+        ];
+    }
 }

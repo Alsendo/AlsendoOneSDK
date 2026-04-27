@@ -98,7 +98,13 @@ class OrderRequestTest extends TestCase
         $this->assertCount(2, $result['shipment']);
         $this->assertSame('PACKAGE', $result['shipment'][0]['shipment_type_code']);
         $this->assertSame(2500, $result['shipment'][0]['weight']);
+        $this->assertSame(400, $result['shipment'][0]['dimension1']);
+        $this->assertSame(300, $result['shipment'][0]['dimension2']);
+        $this->assertSame(200, $result['shipment'][0]['dimension3']);
         $this->assertSame('ENVELOPE', $result['shipment'][1]['shipment_type_code']);
+        $this->assertSame(350, $result['shipment'][1]['dimension1']);
+        $this->assertSame(250, $result['shipment'][1]['dimension2']);
+        $this->assertSame(20, $result['shipment'][1]['dimension3']);
     }
 
     public function testEmptyShipmentsAreOmitted(): void
@@ -214,6 +220,9 @@ class OrderRequestTest extends TestCase
         $this->assertArrayHasKey('sender', $result['address']);
         $this->assertArrayHasKey('receiver', $result['address']);
         $this->assertCount(1, $result['shipment']);
+        $this->assertSame(400, $result['shipment'][0]['dimension1']);
+        $this->assertSame(300, $result['shipment'][0]['dimension2']);
+        $this->assertSame(200, $result['shipment'][0]['dimension3']);
         $this->assertArrayHasKey('pickup', $result);
         $this->assertArrayHasKey('cod', $result);
         $this->assertSame('Ostroznie', $result['comment']);

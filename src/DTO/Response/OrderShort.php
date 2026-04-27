@@ -78,9 +78,33 @@ class OrderShort
             Address::fromArray($data['receiver'] ?? []),
             (string) ($data['created'] ?? ''),
             $data['delivered'] ?? null,
-            $data['externalId'] ?? null,
+            isset($data['externalId']) && $data['externalId'] !== false ? (string) $data['externalId'] : null,
             (string) ($data['supplier'] ?? '')
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'service_id' => $this->service->value,
+            'service_name' => $this->serviceName,
+            'waybill_number' => $this->waybillNumber,
+            'pickup_number' => $this->pickupNumber,
+            'tracking_url' => $this->trackingUrl,
+            'status' => $this->status,
+            'shipments_count' => $this->shipmentsCount,
+            'content' => $this->content,
+            'comment' => $this->comment,
+            'receiver' => $this->receiver->toArray(),
+            'created' => $this->created,
+            'delivered' => $this->delivered,
+            'external_id' => $this->externalId,
+            'supplier' => $this->supplier,
+        ];
     }
 
     public function getId(): int

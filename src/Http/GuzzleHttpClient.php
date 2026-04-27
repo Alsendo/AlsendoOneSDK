@@ -18,19 +18,22 @@ class GuzzleHttpClient implements HttpClientInterface
     public function __construct(array $config = [])
     {
         $defaults = [
-            'timeout' => 30,
+            'timeout' => 120,
             'connect_timeout' => 10,
         ];
 
         $this->client = new Client(array_merge($defaults, $config));
     }
 
-    public function post(string $url, array $formParams): Response
+    public function post(string $url, array $formParams, array $headers = []): Response
     {
         try {
-            $response = $this->client->post($url, [
-                'form_params' => $formParams,
-            ]);
+            $options = ['form_params' => $formParams];
+            if ($headers !== []) {
+                $options['headers'] = $headers;
+            }
+
+            $response = $this->client->post($url, $options);
 
             return new Response(
                 $response->getStatusCode(),
@@ -41,12 +44,15 @@ class GuzzleHttpClient implements HttpClientInterface
         }
     }
 
-    public function get(string $url, array $queryParams): Response
+    public function get(string $url, array $queryParams, array $headers = []): Response
     {
         try {
-            $response = $this->client->get($url, [
-                'query' => $queryParams,
-            ]);
+            $options = ['query' => $queryParams];
+            if ($headers !== []) {
+                $options['headers'] = $headers;
+            }
+
+            $response = $this->client->get($url, $options);
 
             return new Response(
                 $response->getStatusCode(),

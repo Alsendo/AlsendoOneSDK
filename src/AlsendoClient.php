@@ -20,6 +20,8 @@ use AlsendoOne\SDK\Http\GuzzleHttpClient;
 use AlsendoOne\SDK\Http\HttpClientInterface;
 use AlsendoOne\SDK\Http\Response;
 use AlsendoOne\SDK\Type\Service;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Alsendo API v2 client with typed request/response DTOs.
@@ -30,21 +32,52 @@ use AlsendoOne\SDK\Type\Service;
  */
 class AlsendoClient
 {
+    public const VERSION = '1.0.0';
+
     private const DEFAULT_BASE_URL = 'https://www.apaczka.pl/api/v2/';
 
     private SignatureGenerator $signatureGenerator;
     private HttpClientInterface $httpClient;
     private string $baseUrl;
+    private LoggerInterface $logger;
+    private string $userAgent;
 
     public function __construct(
         string $appId,
         string $appSecret,
         ?HttpClientInterface $httpClient = null,
-        string $baseUrl = self::DEFAULT_BASE_URL
+        string $baseUrl = self::DEFAULT_BASE_URL,
+        ?LoggerInterface $logger = null
     ) {
         $this->signatureGenerator = new SignatureGenerator($appId, $appSecret);
         $this->httpClient = $httpClient ?? new GuzzleHttpClient();
         $this->baseUrl = rtrim($baseUrl, '/') . '/';
+        $this->logger = $logger ?? new NullLogger();
+        $this->userAgent = self::buildUserAgent();
+    }
+
+    /**
+     * Build RFC 9110 §10.1.5 compliant User-Agent string.
+     *
+     * Format: "AlsendoOneSDK/<sdk-version> (PHP <php-version>; <os-family>)"
+     * Example: "AlsendoOneSDK/1.0.0 (PHP 7.4.33; Linux)"
+     */
+    private static function buildUserAgent(): string
+    {
+        return sprintf(
+            'AlsendoOneSDK/%s (PHP %s; %s)',
+            self::VERSION,
+            PHP_VERSION,
+            PHP_OS_FAMILY
+        );
+    }
+
+    /**
+     * Returns the User-Agent header value sent with every request.
+     */
+    public function getUserAgent(): string
+    {
+        return $this->userAgent;
     }
 
     // --- Orders ---
@@ -242,12 +275,17 @@ class AlsendoClient
      * @return AccessPoint[]
      * @throws ApiException
      */
-    public function getPoints(string $supplier, string $countryCode = 'PL', string $subtype = ''): array
+    public function getPoints(string $supplier, string $countryCode = 'PL', string $subtype = '', string $postalCode = ''): array
     {
-        $data = $this->request('points/' . $supplier . '/', [
-            'country_code' => $countryCode,
-            'subtype' => $subtype,
-        ])->getResponseData();
+        $params = ['country_code' => $countryCode];
+        if ($subtype !== '') {
+            $params['subtype'] = $subtype;
+        }
+        if ($postalCode !== '') {
+            $params['postal_code'] = $postalCode;
+        }
+
+        $data = $this->request('points/' . $supplier . '/', $params)->getResponseData();
 
         return array_map(
             fn (array $item) => AccessPoint::fromArray($item),
@@ -290,11 +328,43 @@ class AlsendoClient
             'signature' => $signature,
         ];
 
-        $response = $this->httpClient->post($this->baseUrl . $route, $formParams);
+        $url = $this->baseUrl . $route;
+        $headers = ['User-Agent' => $this->userAgent];
 
+        $this->logger->debug('SDK request', [
+            'route'      => $route,
+            'url'        => $url,
+            'params'     => $params,
+            'user_agent' => $this->userAgent,
+        ]);
+
+        try {
+            $response = $this->httpClient->post($url, $formParams, $headers);
+        } catch (\Throwable $e) {
+            $this->logger->error('SDK connection error', [
+                'route' => $route,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+
+        $rawBody = $response->getBody();
         if (!$response->isSuccess()) {
+            $this->logger->error('SDK API error', [
+                'route'       => $route,
+                'http_status' => $response->getHttpStatusCode(),
+                'api_status'  => $response->getApiStatus(),
+                'message'     => $response->getMessage(),
+                'body'        => $rawBody,
+            ]);
             throw new ApiException($response);
         }
+
+        $this->logger->debug('SDK response', [
+            'route'       => $route,
+            'http_status' => $response->getHttpStatusCode(),
+            'body'        => strlen($rawBody) > 8000 ? substr($rawBody, 0, 8000) . '...[truncated]' : $rawBody,
+        ]);
 
         return $response;
     }

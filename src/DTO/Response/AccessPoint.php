@@ -136,4 +136,25 @@ class AccessPoint
     {
         return $this->distance;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'type' => $this->type,
+            'subtype' => $this->subtype,
+            'name' => $this->name,
+            'foreign_address_id' => $this->foreignAddressId,
+            'address' => $this->address->toArray(),
+            'image_url' => $this->imageUrl,
+            'open_hours' => $this->openHours,
+            'option_cod' => $this->optionCod,
+            'option_send' => $this->optionSend,
+            'option_deliver' => $this->optionDeliver,
+            'additional_info' => $this->additionalInfo,
+            'distance' => $this->distance,
+        ];
+    }
 }

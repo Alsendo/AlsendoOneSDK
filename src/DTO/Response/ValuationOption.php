@@ -55,4 +55,17 @@ class ValuationOption
     {
         return $this->priceGross;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'option_id' => $this->optionId,
+            'name' => $this->name,
+            'price' => $this->price,
+            'price_gross' => $this->priceGross,
+        ];
+    }
 }

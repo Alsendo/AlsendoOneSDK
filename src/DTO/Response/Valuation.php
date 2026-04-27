@@ -49,4 +49,16 @@ class Valuation
     {
         return $this->priceTable[$service->value] ?? null;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        $table = [];
+        foreach ($this->priceTable as $serviceId => $price) {
+            $table[$serviceId] = $price->toArray();
+        }
+        return ['price_table' => $table];
+    }
 }

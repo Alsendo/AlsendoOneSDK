@@ -19,6 +19,8 @@ use AlsendoOne\SDK\Http\HttpClientInterface;
 use AlsendoOne\SDK\Http\Response;
 use AlsendoOne\SDK\Type\Service;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 class AlsendoClientTest extends TestCase
 {
@@ -79,7 +81,7 @@ class AlsendoClientTest extends TestCase
                 'created' => '2024-01-15 10:00:00',
                 'delivered' => null,
                 'price' => 1500,
-                'price_var' => 345,
+                'price_vat' => 345,
                 'price_gross' => 1845,
                 'cod' => false,
                 'cod_currency' => null,
@@ -381,6 +383,222 @@ class AlsendoClientTest extends TestCase
             });
 
         $client->getServiceStructure();
+    }
+
+    public function testLoggerReceivesDebugCallsOnSuccessfulRequest(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $logger->expects($this->exactly(2))
+            ->method('debug')
+            ->withConsecutive(
+                [
+                    $this->equalTo('SDK request'),
+                    $this->callback(function (array $context): bool {
+                        return ($context['route'] ?? null) === 'service_structure/'
+                            && isset($context['url'])
+                            && array_key_exists('params', $context);
+                    }),
+                ],
+                [
+                    $this->equalTo('SDK response'),
+                    $this->callback(function (array $context): bool {
+                        return ($context['route'] ?? null) === 'service_structure/'
+                            && ($context['http_status'] ?? null) === 200
+                            && isset($context['body']);
+                    }),
+                ]
+            );
+        $logger->expects($this->never())->method('error');
+
+        $client = new AlsendoClient(
+            'test_app_id',
+            'test_app_secret',
+            $this->httpClient,
+            'https://api.example.com/api/v2/',
+            $logger
+        );
+
+        $this->mockPostResponse('https://api.example.com/api/v2/service_structure/', [
+            'services' => [],
+            'options' => [],
+            'package_type' => [],
+            'points_type' => [],
+            'pickup_type' => [],
+            'unit_type' => [],
+        ]);
+
+        $client->getServiceStructure();
+    }
+
+    public function testLoggerReceivesErrorOnApiFailure(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                $this->equalTo('SDK API error'),
+                $this->callback(function (array $context): bool {
+                    return ($context['route'] ?? null) === 'order/999/'
+                        && ($context['api_status'] ?? null) === 400
+                        && ($context['message'] ?? null) === 'Order not found'
+                        && isset($context['body']);
+                })
+            );
+
+        $client = new AlsendoClient(
+            'test_app_id',
+            'test_app_secret',
+            $this->httpClient,
+            'https://api.example.com/api/v2/',
+            $logger
+        );
+
+        $this->httpClient->method('post')->willReturn(new Response(200, json_encode([
+            'status' => 400,
+            'message' => 'Order not found',
+            'response' => [],
+        ])));
+
+        $this->expectException(ApiException::class);
+
+        $client->getOrder(999);
+    }
+
+    public function testLoggerReceivesErrorOnConnectionFailure(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                $this->equalTo('SDK connection error'),
+                $this->callback(function (array $context): bool {
+                    return ($context['route'] ?? null) === 'service_structure/'
+                        && ($context['error'] ?? null) === 'network down';
+                })
+            );
+
+        $client = new AlsendoClient(
+            'test_app_id',
+            'test_app_secret',
+            $this->httpClient,
+            'https://api.example.com/api/v2/',
+            $logger
+        );
+
+        $this->httpClient->method('post')->willThrowException(new RuntimeException('network down'));
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('network down');
+
+        $client->getServiceStructure();
+    }
+
+    public function testRequestSendsUserAgentHeader(): void
+    {
+        $capturedHeaders = null;
+
+        $this->httpClient->method('post')
+            ->willReturnCallback(function (string $url, array $params, array $headers = []) use (&$capturedHeaders) {
+                $capturedHeaders = $headers;
+
+                return new Response(200, json_encode(['status' => 200, 'message' => 'OK', 'response' => []]));
+            });
+
+        $this->client->getServiceStructure();
+
+        $this->assertIsArray($capturedHeaders);
+        $this->assertArrayHasKey('User-Agent', $capturedHeaders);
+        $this->assertSame($this->client->getUserAgent(), $capturedHeaders['User-Agent']);
+    }
+
+    public function testUserAgentFormatIsRfcCompliant(): void
+    {
+        $userAgent = $this->client->getUserAgent();
+
+        // Format: AlsendoOneSDK/<sdk-ver> (PHP <php-ver>; <os>)
+        $this->assertMatchesRegularExpression(
+            '/^AlsendoOneSDK\/\d+\.\d+\.\d+ \(PHP \d+\.\d+\.\d+[^;]*; [A-Za-z0-9_-]+\)$/',
+            $userAgent
+        );
+        $this->assertStringContainsString(AlsendoClient::VERSION, $userAgent);
+        $this->assertStringContainsString(PHP_VERSION, $userAgent);
+    }
+
+    public function testUserAgentIsStableAcrossRequests(): void
+    {
+        $captured = [];
+
+        $this->httpClient->method('post')
+            ->willReturnCallback(function (string $url, array $params, array $headers = []) use (&$captured) {
+                $captured[] = $headers['User-Agent'] ?? null;
+
+                return new Response(200, json_encode(['status' => 200, 'message' => 'OK', 'response' => []]));
+            });
+
+        $this->client->getServiceStructure();
+        $this->client->getServiceStructure();
+
+        $this->assertCount(2, $captured);
+        $this->assertSame($captured[0], $captured[1]);
+        $this->assertNotNull($captured[0]);
+    }
+
+    public function testLoggerDebugContextIncludesUserAgent(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+
+        $logger->expects($this->atLeastOnce())
+            ->method('debug')
+            ->with(
+                $this->anything(),
+                $this->callback(function (array $context): bool {
+                    // Only the request log carries user_agent; response log doesn't.
+                    if (($context['route'] ?? null) === 'service_structure/' && isset($context['user_agent'])) {
+                        return is_string($context['user_agent']) && strpos($context['user_agent'], 'AlsendoOneSDK/') === 0;
+                    }
+                    return true;
+                })
+            );
+
+        $client = new AlsendoClient(
+            'test_app_id',
+            'test_app_secret',
+            $this->httpClient,
+            'https://api.example.com/api/v2/',
+            $logger
+        );
+
+        $this->mockPostResponse('https://api.example.com/api/v2/service_structure/', [
+            'services' => [],
+            'options' => [],
+            'package_type' => [],
+            'points_type' => [],
+            'pickup_type' => [],
+            'unit_type' => [],
+        ]);
+
+        $client->getServiceStructure();
+    }
+
+    public function testNoLoggerArgumentDefaultsToNullLogger(): void
+    {
+        // Constructing without a logger and exercising the request path must not raise warnings.
+        $client = new AlsendoClient('id', 'secret', $this->httpClient, 'https://api.example.com/api/v2/');
+
+        $this->mockPostResponse('https://api.example.com/api/v2/service_structure/', [
+            'services' => [],
+            'options' => [],
+            'package_type' => [],
+            'points_type' => [],
+            'pickup_type' => [],
+            'unit_type' => [],
+        ]);
+
+        $client->getServiceStructure();
+        $this->addToAssertionCount(1);
     }
 
     /**

@@ -92,4 +92,18 @@ class ValuationPrice
     {
         return $this->shipments;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'service_id' => $this->service->value,
+            'price' => $this->price,
+            'price_gross' => $this->priceGross,
+            'options' => array_map(static fn (ValuationOption $o): array => $o->toArray(), $this->options),
+            'shipments' => array_map(static fn (ValuationShipment $s): array => $s->toArray(), $this->shipments),
+        ];
+    }
 }

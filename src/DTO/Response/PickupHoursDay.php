@@ -44,4 +44,15 @@ class PickupHoursDay
     {
         return $this->services;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'date' => $this->date,
+            'services' => $this->services,
+        ];
+    }
 }

@@ -27,4 +27,16 @@ class TurnInResponse
     {
         return $this->turnIn;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        $raw = $this->turnIn;
+        return [
+            'size_bytes' => strlen(base64_decode($raw) ?: $raw),
+            'turn_in_base64_preview' => substr($raw, 0, 60) . (strlen($raw) > 60 ? '...[truncated]' : ''),
+        ];
+    }
 }
