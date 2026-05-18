@@ -104,6 +104,7 @@ You can obtain your API credentials in the [Apaczka panel](https://www.apaczka.p
 |--------|-------------|
 | `getWaybill(int $orderId)` | Get shipping label as base64-encoded PDF |
 | `getTurnIn(array $orderIds)` | Get batch turn-in confirmation as base64-encoded PDF |
+| `getDispatchCode(int $orderId)` | Get carrier dispatch/return code for an order |
 
 ### Raw request
 
@@ -120,7 +121,6 @@ use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Exception\AuthenticationException;
 use AlsendoOne\SDK\Exception\ConnectionException;
 use AlsendoOne\SDK\Exception\ValidationException;
-
 try {
     $order = $client->getOrder(123456);
 } catch (AuthenticationException $e) {

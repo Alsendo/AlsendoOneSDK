@@ -8,6 +8,7 @@ use AlsendoOne\SDK\Auth\SignatureGenerator;
 use AlsendoOne\SDK\DTO\Request\OrderRequest;
 use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\DTO\Response\AccessPoint;
+use AlsendoOne\SDK\DTO\Response\DispatchCodeResponse;
 use AlsendoOne\SDK\DTO\Response\Order;
 use AlsendoOne\SDK\DTO\Response\OrderShort;
 use AlsendoOne\SDK\DTO\Response\PickupHoursResponse;
@@ -229,6 +230,22 @@ class ApaczkaClient
         ])->getResponseData();
 
         return TurnInResponse::fromArray($data);
+    }
+
+    /**
+     * Get dispatch/return code for an order.
+     *
+     * Returns the carrier's dispatch (or return) code for the given order.
+     * If the carrier did not provide a code for this order, the
+     * {@see DispatchCodeResponse::getDispatchCode()} value will be null.
+     *
+     * @throws ApiException
+     */
+    public function getDispatchCode(int $orderId): DispatchCodeResponse
+    {
+        $data = $this->request('dispatch_code/' . $orderId . '/')->getResponseData();
+
+        return DispatchCodeResponse::fromArray($data);
     }
 
     // --- Access Points ---
