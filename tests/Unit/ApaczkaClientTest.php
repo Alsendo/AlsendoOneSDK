@@ -6,6 +6,7 @@ namespace AlsendoOne\SDK\Tests\Unit;
 
 use AlsendoOne\SDK\ApaczkaClient;
 use AlsendoOne\SDK\DTO\Response\AccessPoint;
+use AlsendoOne\SDK\DTO\Response\DispatchCodeResponse;
 use AlsendoOne\SDK\DTO\Response\Order;
 use AlsendoOne\SDK\DTO\Response\OrderShort;
 use AlsendoOne\SDK\DTO\Response\PickupHoursResponse;
@@ -291,6 +292,30 @@ class ApaczkaClientTest extends TestCase
 
         $this->assertInstanceOf(TurnInResponse::class, $result);
         $this->assertSame('base64pdfdata==', $result->getTurnIn());
+    }
+
+    public function testGetDispatchCode(): void
+    {
+        $responseData = ['order_id' => 123, 'dispatch_code' => 'ABC-XYZ-001'];
+        $this->mockPostResponse('https://api.example.com/api/v2/dispatch_code/123/', $responseData);
+
+        $result = $this->client->getDispatchCode(123);
+
+        $this->assertInstanceOf(DispatchCodeResponse::class, $result);
+        $this->assertSame(123, $result->getOrderId());
+        $this->assertSame('ABC-XYZ-001', $result->getDispatchCode());
+    }
+
+    public function testGetDispatchCodeReturnsNullWhenCarrierDidNotProvide(): void
+    {
+        $responseData = ['order_id' => 456, 'dispatch_code' => null];
+        $this->mockPostResponse('https://api.example.com/api/v2/dispatch_code/456/', $responseData);
+
+        $result = $this->client->getDispatchCode(456);
+
+        $this->assertInstanceOf(DispatchCodeResponse::class, $result);
+        $this->assertSame(456, $result->getOrderId());
+        $this->assertNull($result->getDispatchCode());
     }
 
     public function testGetPoints(): void
