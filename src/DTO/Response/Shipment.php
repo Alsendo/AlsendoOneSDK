@@ -7,8 +7,9 @@ namespace AlsendoOne\SDK\DTO\Response;
 class Shipment
 {
     private string $shipmentTypeCode;
-    private int $weight;
-    private int $weightBillable;
+    /** Weight in kilograms. */
+    private float $weight;
+    private float $weightBillable;
     private int $length;
     private int $width;
     private int $height;
@@ -22,8 +23,8 @@ class Shipment
 
     private function __construct(
         string $shipmentTypeCode,
-        int $weight,
-        int $weightBillable,
+        float $weight,
+        float $weightBillable,
         int $length,
         int $width,
         int $height,
@@ -57,8 +58,8 @@ class Shipment
     {
         return new self(
             (string) ($data['shipment_type_code'] ?? ''),
-            (int) ($data['weight'] ?? 0),
-            (int) ($data['weight_billable'] ?? 0),
+            (float) ($data['weight'] ?? 0),
+            (float) ($data['weight_billable'] ?? 0),
             (int) ($data['length'] ?? 0),
             (int) ($data['width'] ?? 0),
             (int) ($data['height'] ?? 0),
@@ -77,12 +78,12 @@ class Shipment
         return $this->shipmentTypeCode;
     }
 
-    public function getWeight(): int
+    public function getWeight(): float
     {
         return $this->weight;
     }
 
-    public function getWeightBillable(): int
+    public function getWeightBillable(): float
     {
         return $this->weightBillable;
     }

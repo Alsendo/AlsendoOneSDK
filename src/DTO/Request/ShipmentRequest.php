@@ -7,7 +7,8 @@ namespace AlsendoOne\SDK\DTO\Request;
 class ShipmentRequest
 {
     private string $shipmentTypeCode;
-    private int $weight;
+    /** Weight in kilograms. */
+    private float $weight;
     private int $length;
     private int $width;
     private int $height;
@@ -21,7 +22,7 @@ class ShipmentRequest
      */
     public function __construct(
         string $shipmentTypeCode,
-        int $weight,
+        float $weight,
         int $length,
         int $width,
         int $height,
@@ -41,7 +42,7 @@ class ShipmentRequest
 
     public static function create(
         string $shipmentTypeCode,
-        int $weight,
+        float $weight,
         int $length,
         int $width,
         int $height
@@ -56,7 +57,10 @@ class ShipmentRequest
         return $this;
     }
 
-    public function setWeight(int $weight): self
+    /**
+     * @param float $weight Weight in kilograms
+     */
+    public function setWeight(float $weight): self
     {
         $this->weight = $weight;
 
@@ -123,12 +127,15 @@ class ShipmentRequest
      */
     public function toArray(): array
     {
+        // The API expects request dimensions as dimension1/2/3 (cm); the
+        // length/width/height keys are silently ignored by the server and
+        // only appear in *response* payloads.
         $data = [
             'shipment_type_code' => $this->shipmentTypeCode,
             'weight' => $this->weight,
-            'length' => $this->length,
-            'width' => $this->width,
-            'height' => $this->height,
+            'dimension1' => $this->length,
+            'dimension2' => $this->width,
+            'dimension3' => $this->height,
             'content' => $this->content,
             'comment' => $this->comment,
             'customs_data' => $this->customsData !== null

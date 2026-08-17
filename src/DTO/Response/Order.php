@@ -11,10 +11,11 @@ class Order
 {
     private int $id;
     private string $supplier;
-    private Service $service;
+    private int $serviceId;
+    private ?Service $service;
     private string $serviceName;
     private string $waybillNumber;
-    private ?string $pickup;
+    private ?OrderPickup $pickup;
     private ?string $pickupNumber;
     private string $trackingUrl;
     private string $status;
@@ -45,10 +46,11 @@ class Order
     private function __construct(
         int $id,
         string $supplier,
-        Service $service,
+        int $serviceId,
+        ?Service $service,
         string $serviceName,
         string $waybillNumber,
-        ?string $pickup,
+        ?OrderPickup $pickup,
         ?string $pickupNumber,
         string $trackingUrl,
         string $status,
@@ -70,6 +72,7 @@ class Order
     ) {
         $this->id = $id;
         $this->supplier = $supplier;
+        $this->serviceId = $serviceId;
         $this->service = $service;
         $this->serviceName = $serviceName;
         $this->waybillNumber = $waybillNumber;
@@ -110,10 +113,11 @@ class Order
         return new self(
             (int) ($data['id'] ?? 0),
             (string) ($data['supplier'] ?? ''),
-            Service::from((int) ($data['service_id'] ?? 0)),
+            (int) ($data['service_id'] ?? 0),
+            Service::tryFrom((int) ($data['service_id'] ?? 0)),
             (string) ($data['service_name'] ?? ''),
             (string) ($data['waybill_number'] ?? ''),
-            $data['pickup'] ?? null,
+            is_array($data['pickup'] ?? null) ? OrderPickup::fromArray($data['pickup']) : null,
             $data['pickup_number'] ?? null,
             (string) ($data['tracking_url'] ?? ''),
             (string) ($data['status'] ?? ''),
@@ -126,12 +130,16 @@ class Order
             (string) ($data['created'] ?? ''),
             $data['delivered'] ?? null,
             (int) ($data['price'] ?? 0),
-            (int) ($data['price_var'] ?? 0),
+            // The API serializes this order-level key as "price_var" (server-side
+            // typo kept for compatibility) and it holds the VAT *rate* (e.g. 23),
+            // not a VAT amount. The correctly-spelled key is read as fallback.
+            (int) ($data['price_var'] ?? $data['price_vat'] ?? 0),
             (int) ($data['price_gross'] ?? 0),
             $cod !== false ? (int) $cod : false,
             $data['cod_currency'] ?? null,
             $declarationValue !== false ? (int) $declarationValue : false,
-            $data['externalId'] ?? null
+            // The API serializes externalId as boolean false when absent (CBL-only field).
+            is_string($data['externalId'] ?? null) ? $data['externalId'] : null
         );
     }
 
@@ -145,7 +153,19 @@ class Order
         return $this->supplier;
     }
 
-    public function getService(): Service
+    /**
+     * Raw service id as returned by the API.
+     */
+    public function getServiceId(): int
+    {
+        return $this->serviceId;
+    }
+
+    /**
+     * Typed service enum, or null when the API returns a service id
+     * not (yet) known to {@see Service}.
+     */
+    public function getService(): ?Service
     {
         return $this->service;
     }
@@ -160,7 +180,7 @@ class Order
         return $this->waybillNumber;
     }
 
-    public function getPickup(): ?string
+    public function getPickup(): ?OrderPickup
     {
         return $this->pickup;
     }

@@ -29,8 +29,7 @@ class Valuation
         $rawTable = $data['price_table'] ?? [];
         if (is_array($rawTable)) {
             foreach ($rawTable as $serviceId => $entry) {
-                $service = Service::from((int) $serviceId);
-                $priceTable[$service->value] = ValuationPrice::fromArray($service, $entry);
+                $priceTable[(int) $serviceId] = ValuationPrice::fromArray((int) $serviceId, $entry);
             }
         }
 

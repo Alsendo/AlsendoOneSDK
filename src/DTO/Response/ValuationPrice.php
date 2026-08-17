@@ -8,7 +8,8 @@ use AlsendoOne\SDK\Enum\Service;
 
 class ValuationPrice
 {
-    private Service $service;
+    private int $serviceId;
+    private ?Service $service;
     private int $price;
     private int $priceGross;
     /** @var ValuationOption[] */
@@ -21,12 +22,14 @@ class ValuationPrice
      * @param ValuationShipment[] $shipments
      */
     private function __construct(
-        Service $service,
+        int $serviceId,
+        ?Service $service,
         int $price,
         int $priceGross,
         array $options,
         array $shipments
     ) {
+        $this->serviceId = $serviceId;
         $this->service = $service;
         $this->price = $price;
         $this->priceGross = $priceGross;
@@ -37,7 +40,7 @@ class ValuationPrice
     /**
      * @param array<string, mixed> $data
      */
-    public static function fromArray(Service $service, array $data): self
+    public static function fromArray(int $serviceId, array $data): self
     {
         $options = [];
         if (isset($data['options']) && is_array($data['options'])) {
@@ -54,7 +57,8 @@ class ValuationPrice
         }
 
         return new self(
-            $service,
+            $serviceId,
+            Service::tryFrom($serviceId),
             (int) ($data['price'] ?? 0),
             (int) ($data['price_gross'] ?? 0),
             $options,
@@ -62,7 +66,19 @@ class ValuationPrice
         );
     }
 
-    public function getService(): Service
+    /**
+     * Raw service id as returned by the API.
+     */
+    public function getServiceId(): int
+    {
+        return $this->serviceId;
+    }
+
+    /**
+     * Typed service enum, or null when the API returns a service id
+     * not (yet) known to {@see Service}.
+     */
+    public function getService(): ?Service
     {
         return $this->service;
     }

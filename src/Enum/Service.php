@@ -35,6 +35,8 @@ enum Service: int
     case DpdAllegroSmart = 28;
     case DpdPickupEurope = 29;
     case DpdPickupPointToHome = 30;
+    case DpdPickupHomeToMachine = 32;
+    case DpdPickupPointToMachine = 33;
 
     // InPost
     case InPostPaczkomatAllegroSmart = 40;
@@ -60,6 +62,7 @@ enum Service: int
     case PocztexAllegroSmart = 67;
     case PocztexAllegroSmartPointToPoint = 68;
     case PocztexCargo = 69;
+    case PocztaPolskaUkraine = 71;
 
     // DHL
     case DhlParcelCourier = 82;
@@ -153,6 +156,8 @@ enum Service: int
             self::DpdAllegroSmart => 'ALLEGRO_DPD',
             self::DpdPickupEurope => 'DPD_PICKUP_FOREIGN',
             self::DpdPickupPointToHome => 'DPD_PICKUP_P2D',
+            self::DpdPickupHomeToMachine => 'DPD_PICKUP_D2A',
+            self::DpdPickupPointToMachine => 'DPD_PICKUP_P2A',
             self::InPostPaczkomatAllegroSmart => 'PACZKOMAT_ALLEGRO',
             self::InPostPaczkomat => 'PACZKOMAT',
             self::InPostCourier => 'INPOST',
@@ -172,6 +177,7 @@ enum Service: int
             self::PocztexAllegroSmart => 'ALLEGRO_POCZTEX',
             self::PocztexAllegroSmartPointToPoint => 'ALLEGRO_POCZTEX_POINT2POINT',
             self::PocztexCargo => 'POCZTEX_CARGO',
+            self::PocztaPolskaUkraine => 'POCZTA_UA',
             self::DhlParcelCourier => 'DHLSTD',
             self::DhlParcelCourierBy12 => 'DHL12',
             self::DhlParcelCourierBy9 => 'DHL09',
@@ -239,6 +245,8 @@ enum Service: int
             self::DpdAllegroSmart => 'Allegro SMART DPD Kurier',
             self::DpdPickupEurope => 'DPD Pickup Europa',
             self::DpdPickupPointToHome => 'DPD Pickup Punkt-Drzwi',
+            self::DpdPickupHomeToMachine => 'DPD Pickup Drzwi-Automat',
+            self::DpdPickupPointToMachine => 'DPD Pickup Punkt-Automat',
             self::InPostPaczkomatAllegroSmart => 'Allegro SMART Paczkomat InPost',
             self::InPostPaczkomat => 'InPost Paczkomat',
             self::InPostCourier => 'InPost Kurier',
@@ -258,6 +266,7 @@ enum Service: int
             self::PocztexAllegroSmart => 'Allegro SMART Pocztex',
             self::PocztexAllegroSmartPointToPoint => 'Allegro SMART Pocztex Punkty',
             self::PocztexCargo => 'Poczta Polska Palety',
+            self::PocztaPolskaUkraine => 'Poczta Polska Ukraina',
             self::DhlParcelCourier => 'DHL Parcel Kurier',
             self::DhlParcelCourierBy12 => 'DHL Parcel Kurier do 12:00',
             self::DhlParcelCourierBy9 => 'DHL Parcel Kurier do 9:00',
@@ -311,7 +320,8 @@ enum Service: int
 
             self::DpdCourier, self::DpdCourierEurope, self::DpdPickupHomeToPoint, self::DpdCourierBy930,
             self::DpdCourierBy12, self::DpdPickupPointToPoint, self::DpdMaxInternational, self::DpdAllegroSmart,
-            self::DpdPickupEurope, self::DpdPickupPointToHome, self::ApaczkaDpdGermany => 'DPD',
+            self::DpdPickupEurope, self::DpdPickupPointToHome, self::DpdPickupHomeToMachine,
+            self::DpdPickupPointToMachine, self::ApaczkaDpdGermany => 'DPD',
 
             self::InPostPaczkomatAllegroSmart, self::InPostPaczkomat, self::InPostCourier,
             self::InPostPaczkomatToHome, self::InPostInternationalHomeToPoint,
@@ -322,7 +332,8 @@ enum Service: int
             self::PocztexCourierHomeToHome, self::PocztexCourierBy9, self::PocztexCourierBy12,
             self::PocztexCourierBy17, self::PocztexCourierHomeToPoint, self::PocztexPointToHome,
             self::PocztexPointToPoint, self::PocztexAllegroSmart,
-            self::PocztexAllegroSmartPointToPoint, self::PocztexCargo => 'POCZTA',
+            self::PocztexAllegroSmartPointToPoint, self::PocztexCargo,
+            self::PocztaPolskaUkraine => 'POCZTA',
 
             self::DhlParcelCourier, self::DhlParcelCourierBy12, self::DhlParcelCourierBy9,
             self::DhlPopPointToHome => 'DHL',

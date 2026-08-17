@@ -16,6 +16,8 @@ class Address
     private ?string $city;
     private ?string $countryCode;
     private ?string $foreignAddressId;
+    private ?string $stateCode;
+    private ?bool $isResidential;
 
     public function __construct(
         ?string $name = null,
@@ -27,7 +29,9 @@ class Address
         ?string $postalCode = null,
         ?string $city = null,
         ?string $countryCode = null,
-        ?string $foreignAddressId = null
+        ?string $foreignAddressId = null,
+        ?string $stateCode = null,
+        ?bool $isResidential = null
     ) {
         $this->name = $name;
         $this->contactPerson = $contactPerson;
@@ -39,6 +43,8 @@ class Address
         $this->city = $city;
         $this->countryCode = $countryCode;
         $this->foreignAddressId = $foreignAddressId;
+        $this->stateCode = $stateCode;
+        $this->isResidential = $isResidential;
     }
 
     /**
@@ -56,12 +62,14 @@ class Address
             isset($data['postal_code']) ? (string) $data['postal_code'] : null,
             isset($data['city']) ? (string) $data['city'] : null,
             isset($data['country_code']) ? (string) $data['country_code'] : null,
-            isset($data['foreign_address_id']) ? (string) $data['foreign_address_id'] : null
+            isset($data['foreign_address_id']) ? (string) $data['foreign_address_id'] : null,
+            isset($data['state_code']) ? (string) $data['state_code'] : null,
+            isset($data['is_residential']) ? (bool) $data['is_residential'] : null
         );
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
@@ -76,6 +84,8 @@ class Address
             'city' => $this->city,
             'country_code' => $this->countryCode,
             'foreign_address_id' => $this->foreignAddressId,
+            'state_code' => $this->stateCode,
+            'is_residential' => $this->isResidential,
         ], static function ($value): bool {
             return $value !== null;
         });
@@ -129,5 +139,18 @@ class Address
     public function getForeignAddressId(): ?string
     {
         return $this->foreignAddressId;
+    }
+
+    /**
+     * State/region code (max 10 chars) — required by some destinations, e.g. the US.
+     */
+    public function getStateCode(): ?string
+    {
+        return $this->stateCode;
+    }
+
+    public function getIsResidential(): ?bool
+    {
+        return $this->isResidential;
     }
 }

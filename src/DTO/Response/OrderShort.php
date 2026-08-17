@@ -10,7 +10,8 @@ use AlsendoOne\SDK\Enum\Service;
 class OrderShort
 {
     private int $id;
-    private Service $service;
+    private int $serviceId;
+    private ?Service $service;
     private string $serviceName;
     private string $waybillNumber;
     private ?string $pickupNumber;
@@ -27,7 +28,8 @@ class OrderShort
 
     private function __construct(
         int $id,
-        Service $service,
+        int $serviceId,
+        ?Service $service,
         string $serviceName,
         string $waybillNumber,
         ?string $pickupNumber,
@@ -43,6 +45,7 @@ class OrderShort
         string $supplier
     ) {
         $this->id = $id;
+        $this->serviceId = $serviceId;
         $this->service = $service;
         $this->serviceName = $serviceName;
         $this->waybillNumber = $waybillNumber;
@@ -66,7 +69,8 @@ class OrderShort
     {
         return new self(
             (int) ($data['id'] ?? 0),
-            Service::from((int) ($data['service_id'] ?? 0)),
+            (int) ($data['service_id'] ?? 0),
+            Service::tryFrom((int) ($data['service_id'] ?? 0)),
             (string) ($data['service_name'] ?? ''),
             (string) ($data['waybill_number'] ?? ''),
             $data['pickup_number'] ?? null,
@@ -77,8 +81,9 @@ class OrderShort
             (string) ($data['comment'] ?? ''),
             Address::fromArray($data['receiver'] ?? []),
             (string) ($data['created'] ?? ''),
-            $data['delivered'] ?? null,
-            $data['externalId'] ?? null,
+            is_string($data['delivered'] ?? null) ? $data['delivered'] : null,
+            // The API serializes externalId as boolean false when absent (CBL-only field).
+            is_string($data['externalId'] ?? null) ? $data['externalId'] : null,
             (string) ($data['supplier'] ?? '')
         );
     }
@@ -88,7 +93,19 @@ class OrderShort
         return $this->id;
     }
 
-    public function getService(): Service
+    /**
+     * Raw service id as returned by the API.
+     */
+    public function getServiceId(): int
+    {
+        return $this->serviceId;
+    }
+
+    /**
+     * Typed service enum, or null when the API returns a service id
+     * not (yet) known to {@see Service}.
+     */
+    public function getService(): ?Service
     {
         return $this->service;
     }
