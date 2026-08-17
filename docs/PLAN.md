@@ -1,5 +1,9 @@
 # Plan: AlsendoOne SDK — publiczny klient PHP dla Apaczka API v2
 
+> **Uwaga (2026-08):** dokument historyczny z fazy planowania. Aktualne wymagania
+> różnią się od opisanych poniżej — minimalna wersja PHP to **8.1** (backed enums),
+> zob. `composer.json` i `README.md`.
+
 ## 1. Informacje o projekcie
 
 **Projekt:** AlsendoOne

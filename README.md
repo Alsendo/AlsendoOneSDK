@@ -120,23 +120,23 @@ You can obtain your API credentials in the [Apaczka panel](https://www.apaczka.p
 
 ## Error handling
 
-The SDK throws specific exceptions depending on the error type. All exceptions extend `AlsendoOne\SDK\Exception\ApaczkaException`.
+The SDK throws exceptions extending `AlsendoOne\SDK\Exception\ApaczkaException`:
+
+- `ApiException` — the API returned an error. Note that the Apaczka API responds
+  with HTTP 200 even on failures; errors are signalled by a non-200 `status`
+  field in the response envelope (in practice always `400`), with the reason in
+  the `message` field.
+- `ConnectionException` — the HTTP request itself failed (timeout, DNS failure,
+  non-200 HTTP status, etc.).
 
 ```php
 use AlsendoOne\SDK\Exception\ApiException;
-use AlsendoOne\SDK\Exception\AuthenticationException;
 use AlsendoOne\SDK\Exception\ConnectionException;
-use AlsendoOne\SDK\Exception\ValidationException;
+
 try {
     $order = $client->getOrder(123456);
-} catch (AuthenticationException $e) {
-    // Invalid credentials or expired signature
-    echo 'Auth error: ' . $e->getMessage();
-} catch (ValidationException $e) {
-    // Invalid request parameters
-    echo 'Validation error: ' . $e->getMessage();
 } catch (ApiException $e) {
-    // API returned a non-200 status
+    // API returned an error envelope, e.g. "Order not found."
     echo 'API error ' . $e->getCode() . ': ' . $e->getMessage();
 
     // Access the full response
@@ -147,6 +147,10 @@ try {
     echo 'Connection error: ' . $e->getMessage();
 }
 ```
+
+The API does not distinguish authentication or validation failures by status
+code (everything is `400`) — inspect the exception message if you need to tell
+them apart.
 
 ## Custom HTTP client
 
@@ -176,14 +180,14 @@ class MyHttpClient implements HttpClientInterface
 $client = new ApaczkaClient('app_id', 'app_secret', new MyHttpClient());
 ```
 
-You can also override the base URL (useful for staging environments):
+You can also override the base URL (useful for the sandbox environment):
 
 ```php
 $client = new ApaczkaClient(
     'app_id',
     'app_secret',
-    null,                                    // use default Guzzle client
-    'https://sandbox.apaczka.pl/api/v2/'     // custom base URL
+    null,                                          // use default Guzzle client
+    'https://panel-sandbox.apaczka.pl/api/v2/'     // custom base URL
 );
 ```
 
