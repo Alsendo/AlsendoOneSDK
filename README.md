@@ -9,7 +9,7 @@ Official PHP client for [Apaczka API v2](https://www.apaczka.pl/api/v2/). Ship p
 
 ## Requirements
 
-- PHP 7.4 or higher
+- PHP 8.1 or higher
 - `ext-json`
 - An HTTP client implementing `HttpClientInterface` (Guzzle 7 adapter included)
 
@@ -40,10 +40,10 @@ $client = new ApaczkaClient(
 );
 
 // Fetch available services
-$services = $client->getServiceStructure();
+$structure = $client->getServiceStructure();
 
-foreach ($services['services'] as $service) {
-    echo $service['name'] . ' (ID: ' . $service['id'] . ')' . PHP_EOL;
+foreach ($structure->getServices() as $service) {
+    echo $service['name'] . ' (ID: ' . $service['service_id'] . ')' . PHP_EOL;
 }
 ```
 
@@ -94,9 +94,15 @@ You can obtain your API credentials in the [Apaczka panel](https://www.apaczka.p
 
 | Method | Description |
 |--------|-------------|
-| `getPickupHours(string $postalCode, ?int $serviceId = null)` | Get available pickup time windows for a postal code |
+| `getPickupHours(string $postalCode, ?Service $service = null)` | Get available pickup time windows for a postal code |
 | `schedulePickup(int $orderId, string $date, string $hourFrom, string $hourTo)` | Schedule courier pickup for one order |
 | `scheduleBatchPickup(array $orderIds, string $date, string $hourFrom, string $hourTo)` | Schedule courier pickup for multiple orders |
+
+### Tracking
+
+| Method | Description |
+|--------|-------------|
+| `getTracking(string $waybillNumber)` | Get tracking events (normalized status, carrier status, place, timestamp) for a waybill |
 
 ### Documents
 

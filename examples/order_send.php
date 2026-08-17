@@ -11,11 +11,11 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use AlsendoOne\SDK\ApaczkaClient;
 use AlsendoOne\SDK\DTO\Address;
-use AlsendoOne\SDK\DTO\Request\CodRequest;
 use AlsendoOne\SDK\DTO\Request\NotificationRequest;
 use AlsendoOne\SDK\DTO\Request\OrderRequest;
 use AlsendoOne\SDK\DTO\Request\PickupRequest;
 use AlsendoOne\SDK\DTO\Request\ShipmentRequest;
+use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Exception\ConnectionException;
 
@@ -27,7 +27,7 @@ $client = new ApaczkaClient($appId, $appSecret);
 
 // Build order using typed DTOs
 $order = OrderRequest::create()
-    ->setServiceId(1) // Replace with a valid service ID from getServiceStructure()
+    ->setService(Service::DpdCourier) // Replace with a service available on your account, see getServiceStructure()
     ->setSenderAddress(new Address(
         name: 'Firma Sp. z o.o.',
         contactPerson: 'Jan Kowalski',
@@ -96,11 +96,11 @@ try {
 
     // Step 3: Check pickup hours and schedule
     echo PHP_EOL . "Checking available pickup hours..." . PHP_EOL;
-    $pickupHours = $client->getPickupHours('00-001', 1);
+    $pickupHours = $client->getPickupHours('00-001', Service::DpdCourier);
 
     $hours = $pickupHours->getHours();
     if (!empty($hours)) {
-        $firstDay = $hours[0];
+        $firstDay = reset($hours);
         echo "  Available date: " . $firstDay->getDate() . PHP_EOL;
 
         $pickup = $client->schedulePickup(
