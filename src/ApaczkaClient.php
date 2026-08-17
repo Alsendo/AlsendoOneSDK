@@ -32,6 +32,17 @@ use AlsendoOne\SDK\Http\Response;
  */
 class ApaczkaClient
 {
+    /**
+     * SDK version, sent in the User-Agent header by the bundled Guzzle adapter.
+     */
+    public const VERSION = '1.0.0-dev';
+
+    /**
+     * Base URL of the sandbox environment. Pass as the $baseUrl constructor
+     * argument to test against the sandbox instead of production.
+     */
+    public const SANDBOX_URL = 'https://panel-sandbox.apaczka.pl/api/v2/';
+
     private const DEFAULT_BASE_URL = 'https://www.apaczka.pl/api/v2/';
 
     private SignatureGenerator $signatureGenerator;

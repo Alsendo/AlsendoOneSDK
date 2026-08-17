@@ -180,14 +180,30 @@ class MyHttpClient implements HttpClientInterface
 $client = new ApaczkaClient('app_id', 'app_secret', new MyHttpClient());
 ```
 
-You can also override the base URL (useful for the sandbox environment):
+The bundled adapter accepts any Guzzle config options — for example to raise
+the timeouts (defaults: 30 s request, 10 s connect):
+
+```php
+use AlsendoOne\SDK\Http\GuzzleHttpClient;
+
+$client = new ApaczkaClient(
+    'app_id',
+    'app_secret',
+    new GuzzleHttpClient(['timeout' => 120])
+);
+```
+
+## Sandbox
+
+To test against the sandbox environment, pass `ApaczkaClient::SANDBOX_URL` as
+the base URL (sandbox credentials are separate from production ones):
 
 ```php
 $client = new ApaczkaClient(
     'app_id',
     'app_secret',
-    null,                                          // use default Guzzle client
-    'https://panel-sandbox.apaczka.pl/api/v2/'     // custom base URL
+    null,                           // use default Guzzle client
+    ApaczkaClient::SANDBOX_URL
 );
 ```
 

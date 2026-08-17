@@ -5,6 +5,16 @@
     "license": "MIT",
     "keywords": ["apaczka", "alsendo", "shipping", "api", "sdk", "courier"],
     "homepage": "https://github.com/Alsendo/AlsendoOneSDK",
+    "authors": [
+        {
+            "name": "Alsendo",
+            "homepage": "https://alsendo.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/Alsendo/AlsendoOneSDK/issues",
+        "source": "https://github.com/Alsendo/AlsendoOneSDK"
+    },
     "require": {
         "php": ">=8.1",
         "ext-json": "*"

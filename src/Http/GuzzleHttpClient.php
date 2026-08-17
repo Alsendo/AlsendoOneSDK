@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AlsendoOne\SDK\Http;
 
+use AlsendoOne\SDK\ApaczkaClient;
 use AlsendoOne\SDK\Exception\ConnectionException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -20,9 +21,12 @@ class GuzzleHttpClient implements HttpClientInterface
         $defaults = [
             'timeout' => 30,
             'connect_timeout' => 10,
+            'headers' => [
+                'User-Agent' => sprintf('AlsendoOneSDK/%s PHP/%s', ApaczkaClient::VERSION, PHP_VERSION),
+            ],
         ];
 
-        $this->client = new Client(array_merge($defaults, $config));
+        $this->client = new Client(array_replace_recursive($defaults, $config));
     }
 
     public function post(string $url, array $formParams): Response
