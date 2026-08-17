@@ -12,6 +12,7 @@ use AlsendoOne\SDK\DTO\Response\OrderShort;
 use AlsendoOne\SDK\DTO\Response\PickupHoursResponse;
 use AlsendoOne\SDK\DTO\Response\PickupResponse;
 use AlsendoOne\SDK\DTO\Response\ServiceStructure;
+use AlsendoOne\SDK\DTO\Response\TrackingResponse;
 use AlsendoOne\SDK\DTO\Response\TurnInResponse;
 use AlsendoOne\SDK\DTO\Response\Valuation;
 use AlsendoOne\SDK\DTO\Response\WaybillResponse;
@@ -67,7 +68,13 @@ class ApaczkaClientTest extends TestCase
                 'service_id' => 41,
                 'service_name' => 'DPD Classic',
                 'waybill_number' => 'WB123',
-                'pickup' => null,
+                'pickup' => [
+                    'type' => 'BOX_MACHINE',
+                    'date' => '',
+                    'hours_from' => '',
+                    'hours_to' => '',
+                    'address_id' => null,
+                ],
                 'pickup_number' => null,
                 'tracking_url' => 'https://tracking.example.com/123',
                 'status' => 'new',
@@ -80,7 +87,7 @@ class ApaczkaClientTest extends TestCase
                 'created' => '2024-01-15 10:00:00',
                 'delivered' => null,
                 'price' => 1500,
-                'price_var' => 345,
+                'price_var' => 23,
                 'price_gross' => 1845,
                 'cod' => false,
                 'cod_currency' => null,
@@ -97,6 +104,9 @@ class ApaczkaClientTest extends TestCase
         $this->assertSame('new', $result->getStatus());
         $this->assertSame('DPD', $result->getSupplier());
         $this->assertSame(Service::InPostPaczkomat, $result->getService());
+        $this->assertNotNull($result->getPickup());
+        $this->assertSame('BOX_MACHINE', $result->getPickup()->getType());
+        $this->assertNull($result->getPickup()->getAddressId());
     }
 
     public function testGetOrders(): void
@@ -348,11 +358,88 @@ class ApaczkaClientTest extends TestCase
         $this->assertSame('Punkt Krakow', $result[0]->getName());
     }
 
+    public function testGetTracking(): void
+    {
+        $responseData = [
+            'data' => [
+                [
+                    'status' => 'DELIVERED',
+                    'status_original' => 'Przesyłka doręczona',
+                    'description' => 'Doręczono do odbiorcy',
+                    'place' => 'Gdansk',
+                    'updated_at' => '2026-08-15 14:32:00',
+                ],
+                [
+                    'status' => 'IN_TRANSIT',
+                    'status_original' => 'Przesyłka w drodze',
+                    'description' => '',
+                    'place' => 'Warszawa',
+                    'updated_at' => '2026-08-14 08:01:00',
+                ],
+            ],
+            'service' => 'DPD',
+        ];
+        $this->mockPostResponse('https://api.example.com/api/v2/tracking/WB123/', $responseData);
+
+        $result = $this->client->getTracking('WB123');
+
+        $this->assertInstanceOf(TrackingResponse::class, $result);
+        $this->assertSame('DPD', $result->getService());
+        $this->assertCount(2, $result->getEvents());
+
+        $first = $result->getEvents()[0];
+        $this->assertSame('DELIVERED', $first->getStatus());
+        $this->assertSame('Przesyłka doręczona', $first->getStatusOriginal());
+        $this->assertSame('Doręczono do odbiorcy', $first->getDescription());
+        $this->assertSame('Gdansk', $first->getPlace());
+        $this->assertSame('2026-08-15 14:32:00', $first->getUpdatedAt());
+
+        $this->assertSame('IN_TRANSIT', $result->getEvents()[1]->getStatus());
+    }
+
+    public function testGetTrackingWithEmptyData(): void
+    {
+        $this->mockPostResponse('https://api.example.com/api/v2/tracking/UNKNOWN/', [
+            'data' => [],
+            'service' => '',
+        ]);
+
+        $result = $this->client->getTracking('UNKNOWN');
+
+        $this->assertSame([], $result->getEvents());
+        $this->assertSame('', $result->getService());
+    }
+
+    public function testGetTrackingSignsRouteWithWaybillPathParam(): void
+    {
+        $this->httpClient->expects($this->once())
+            ->method('post')
+            ->willReturnCallback(function (string $url, array $params) {
+                $this->assertSame('https://api.example.com/api/v2/tracking/WB123/', $url);
+
+                // The signature must cover the route including the path param and trailing slash.
+                $expected = hash_hmac(
+                    'sha256',
+                    sprintf('test_app_id:tracking/WB123/:%s:%s', $params['request'], $params['expires']),
+                    'test_app_secret'
+                );
+                $this->assertSame($expected, $params['signature']);
+
+                return new Response(200, json_encode([
+                    'status' => 200,
+                    'message' => '',
+                    'response' => ['data' => [], 'service' => ''],
+                ]));
+            });
+
+        $this->client->getTracking('WB123');
+    }
+
     public function testApiErrorThrowsApiException(): void
     {
         $body = json_encode([
-            'status' => 400,
-            'message' => 'Order not found',
+            'status' => 500,
+            'message' => 'Internal error',
             'response' => [],
         ]);
 
@@ -360,9 +447,48 @@ class ApaczkaClientTest extends TestCase
             ->willReturn(new Response(200, $body));
 
         $this->expectException(ApiException::class);
-        $this->expectExceptionMessage('Order not found');
+        $this->expectExceptionMessage('Internal error');
 
         $this->client->getOrder(999);
+    }
+
+    public function testGetOrderWithUnknownServiceIdDoesNotThrow(): void
+    {
+        $this->mockPostResponse('https://api.example.com/api/v2/order/123/', [
+            'order' => [
+                'id' => 123,
+                'service_id' => 99999,
+                'service_name' => 'Future Courier',
+            ],
+        ]);
+
+        $result = $this->client->getOrder(123);
+
+        $this->assertNull($result->getService());
+        $this->assertSame(99999, $result->getServiceId());
+        $this->assertSame('Future Courier', $result->getServiceName());
+    }
+
+    public function testGetValuationKeepsUnknownServiceIds(): void
+    {
+        $this->mockPostResponse('https://api.example.com/api/v2/order_valuation/', [
+            'price_table' => [
+                '41' => ['price' => 1500, 'price_gross' => 1845],
+                '99999' => ['price' => 2000, 'price_gross' => 2460],
+            ],
+        ]);
+
+        $result = $this->client->getValuation(['service_id' => 41]);
+
+        $this->assertCount(2, $result->getPriceTable());
+        $known = $result->getPriceForService(Service::InPostPaczkomat);
+        $this->assertNotNull($known);
+        $this->assertSame(Service::InPostPaczkomat, $known->getService());
+
+        $unknown = $result->getPriceTable()[99999];
+        $this->assertNull($unknown->getService());
+        $this->assertSame(99999, $unknown->getServiceId());
+        $this->assertSame(2000, $unknown->getPrice());
     }
 
     public function testRequestSendsCorrectFormParams(): void

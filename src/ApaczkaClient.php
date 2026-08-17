@@ -6,7 +6,6 @@ namespace AlsendoOne\SDK;
 
 use AlsendoOne\SDK\Auth\SignatureGenerator;
 use AlsendoOne\SDK\DTO\Request\OrderRequest;
-use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\DTO\Response\AccessPoint;
 use AlsendoOne\SDK\DTO\Response\DispatchCodeResponse;
 use AlsendoOne\SDK\DTO\Response\Order;
@@ -14,9 +13,11 @@ use AlsendoOne\SDK\DTO\Response\OrderShort;
 use AlsendoOne\SDK\DTO\Response\PickupHoursResponse;
 use AlsendoOne\SDK\DTO\Response\PickupResponse;
 use AlsendoOne\SDK\DTO\Response\ServiceStructure;
+use AlsendoOne\SDK\DTO\Response\TrackingResponse;
 use AlsendoOne\SDK\DTO\Response\TurnInResponse;
 use AlsendoOne\SDK\DTO\Response\Valuation;
 use AlsendoOne\SDK\DTO\Response\WaybillResponse;
+use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Http\GuzzleHttpClient;
 use AlsendoOne\SDK\Http\HttpClientInterface;
@@ -248,6 +249,21 @@ class ApaczkaClient
         return DispatchCodeResponse::fromArray($data);
     }
 
+    // --- Tracking ---
+
+    /**
+     * Get tracking events for a waybill number.
+     *
+     * @param string $waybillNumber Waybill (shipment) number
+     * @throws ApiException
+     */
+    public function getTracking(string $waybillNumber): TrackingResponse
+    {
+        $data = $this->request('tracking/' . $waybillNumber . '/')->getResponseData();
+
+        return TrackingResponse::fromArray($data);
+    }
+
     // --- Access Points ---
 
     /**
@@ -261,15 +277,17 @@ class ApaczkaClient
      */
     public function getPoints(string $supplier, string $countryCode = 'PL', string $subtype = ''): array
     {
-        $data = $this->request('points/' . $supplier . '/', [
-            'country_code' => $countryCode,
-            'subtype' => $subtype,
-        ])->getResponseData();
+        $params = ['country_code' => $countryCode];
+        if ($subtype !== '') {
+            $params['subtype'] = $subtype;
+        }
+        $data = $this->request('points/' . $supplier . '/', $params)->getResponseData();
 
-        return array_map(
+        // The API returns points as a 1-indexed object map — normalize to a list.
+        return array_values(array_map(
             fn (array $item) => AccessPoint::fromArray($item),
             $data['points'] ?? []
-        );
+        ));
     }
 
     // --- Raw request ---
