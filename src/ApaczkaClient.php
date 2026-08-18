@@ -24,6 +24,7 @@ use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Http\GuzzleHttpClient;
 use AlsendoOne\SDK\Http\HttpClientInterface;
 use AlsendoOne\SDK\Http\Response;
+use Composer\InstalledVersions;
 
 /**
  * Apaczka API v2 client with typed request/response DTOs.
@@ -35,17 +36,33 @@ use AlsendoOne\SDK\Http\Response;
 class ApaczkaClient implements ApaczkaClientInterface
 {
     /**
-     * SDK version, sent in the User-Agent header by the bundled Guzzle adapter.
-     */
-    public const VERSION = '1.0.0';
-
-    /**
      * Base URL of the sandbox environment. Pass as the $baseUrl constructor
      * argument to test against the sandbox instead of production.
      */
     public const SANDBOX_URL = 'https://panel-sandbox.apaczka.pl/api/v2/';
 
     private const DEFAULT_BASE_URL = 'https://www.apaczka.pl/api/v2/';
+    private const PACKAGE_NAME = 'alsendo/alsendo-one-sdk';
+
+    /**
+     * SDK version as installed by composer (release tag), sent in the
+     * User-Agent header by the bundled Guzzle adapter. Falls back to "dev"
+     * when the package metadata is unavailable.
+     */
+    public static function version(): string
+    {
+        if (InstalledVersions::isInstalled(self::PACKAGE_NAME)) {
+            return InstalledVersions::getPrettyVersion(self::PACKAGE_NAME) ?? 'dev';
+        }
+
+        // Repository checkout — the SDK itself is the composer root package.
+        $root = InstalledVersions::getRootPackage();
+        if ($root['name'] === self::PACKAGE_NAME) {
+            return $root['pretty_version'];
+        }
+
+        return 'dev';
+    }
 
     private SignatureGenerator $signatureGenerator;
     private HttpClientInterface $httpClient;

@@ -22,7 +22,7 @@ class GuzzleHttpClient implements HttpClientInterface
             'timeout' => 30,
             'connect_timeout' => 10,
             'headers' => [
-                'User-Agent' => sprintf('AlsendoOneSDK/%s PHP/%s', ApaczkaClient::VERSION, PHP_VERSION),
+                'User-Agent' => sprintf('AlsendoOneSDK/%s PHP/%s', ApaczkaClient::version(), PHP_VERSION),
             ],
         ];
 
