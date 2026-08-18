@@ -59,6 +59,11 @@ HMAC-SHA256(app_id:route:json_request:expires, app_secret)
 
 Each signature is valid for 15 minutes. The SDK generates `expires` timestamps internally, so there is nothing to manage on your end.
 
+For endpoints without parameters the SDK signs and sends `{}` (an empty JSON
+object), while the official API examples sign `[]` (an empty JSON array) —
+the API accepts both, but the two payloads produce different signatures, so
+don't mix the SDK with hand-rolled signing code for the same request.
+
 You can obtain your API credentials in the [Apaczka panel](https://www.apaczka.pl/) under **Settings > API**.
 
 ## Available methods
@@ -74,6 +79,16 @@ You can obtain your API credentials in the [Apaczka panel](https://www.apaczka.p
 | Method | Description |
 |--------|-------------|
 | `getPoints(string $supplier, string $countryCode = 'PL', string $subtype = '')` | Get pickup/drop-off points for a courier (e.g. InPost lockers) |
+
+Notes:
+
+- To ship **to** a specific point, put its `foreign_address_id` (e.g. `"ADA01M"`)
+  into the receiver `Address::$foreignAddressId`. Setting it on the sender
+  address switches the pickup to drop-off at that point instead.
+- The endpoint returns the **entire point list** for the country (tens of
+  thousands of entries for some carriers) — there are no geo/city filters, so
+  fetch once, cache, and filter locally. Consider raising the HTTP timeout
+  (see below).
 
 ### Pricing
 

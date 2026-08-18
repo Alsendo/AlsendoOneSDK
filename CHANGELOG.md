@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- `Address`: `foreign_address_subtype` — destination point network/brand,
+  read by the API on the receiver address of linehaul (CBL/Packeta)
+  point-to-point services.
+
+### Changed
+- Documented money units (grosze) and timestamp formats (`Y-m-d H:i:s` in
+  Europe/Warsaw for order fields vs. ISO 8601 for tracking) in DTO
+  docblocks; documented valuation behaviour without `service_id`,
+  the `foreign_address_id` flow for shipping to pickup points, and the
+  `{}` vs `[]` empty-payload signing difference in the README.
+
 ## [1.0.0] - 2026-08-18
 
 First stable release.

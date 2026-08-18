@@ -18,6 +18,7 @@ class Address
     private ?string $foreignAddressId;
     private ?string $stateCode;
     private ?bool $isResidential;
+    private ?string $foreignAddressSubtype;
 
     public function __construct(
         ?string $name = null,
@@ -31,7 +32,8 @@ class Address
         ?string $countryCode = null,
         ?string $foreignAddressId = null,
         ?string $stateCode = null,
-        ?bool $isResidential = null
+        ?bool $isResidential = null,
+        ?string $foreignAddressSubtype = null
     ) {
         $this->name = $name;
         $this->contactPerson = $contactPerson;
@@ -45,6 +47,7 @@ class Address
         $this->foreignAddressId = $foreignAddressId;
         $this->stateCode = $stateCode;
         $this->isResidential = $isResidential;
+        $this->foreignAddressSubtype = $foreignAddressSubtype;
     }
 
     /**
@@ -64,7 +67,8 @@ class Address
             isset($data['country_code']) ? (string) $data['country_code'] : null,
             isset($data['foreign_address_id']) ? (string) $data['foreign_address_id'] : null,
             isset($data['state_code']) ? (string) $data['state_code'] : null,
-            isset($data['is_residential']) ? (bool) $data['is_residential'] : null
+            isset($data['is_residential']) ? (bool) $data['is_residential'] : null,
+            isset($data['foreign_address_subtype']) ? (string) $data['foreign_address_subtype'] : null
         );
     }
 
@@ -86,6 +90,7 @@ class Address
             'foreign_address_id' => $this->foreignAddressId,
             'state_code' => $this->stateCode,
             'is_residential' => $this->isResidential,
+            'foreign_address_subtype' => $this->foreignAddressSubtype,
         ], static function ($value): bool {
             return $value !== null;
         });
@@ -152,5 +157,15 @@ class Address
     public function getIsResidential(): ?bool
     {
         return $this->isResidential;
+    }
+
+    /**
+     * Destination point network/brand — used on the receiver address of
+     * linehaul services (CBL/Packeta point-to-point) to pick the target
+     * pickup-point network.
+     */
+    public function getForeignAddressSubtype(): ?string
+    {
+        return $this->foreignAddressSubtype;
     }
 }
