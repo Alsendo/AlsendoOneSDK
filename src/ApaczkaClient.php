@@ -37,7 +37,7 @@ class ApaczkaClient implements ApaczkaClientInterface
     /**
      * SDK version, sent in the User-Agent header by the bundled Guzzle adapter.
      */
-    public const VERSION = '1.0.0-dev';
+    public const VERSION = '1.0.0';
 
     /**
      * Base URL of the sandbox environment. Pass as the $baseUrl constructor
