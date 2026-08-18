@@ -27,7 +27,8 @@ First stable release.
   (`TrackingResponse`, `TrackingEvent` DTOs).
 - `ApaczkaClient::SANDBOX_URL` constant with the sandbox base URL.
 - Default `User-Agent` header (`AlsendoOneSDK/<version> PHP/<version>`) sent by
-  the bundled Guzzle adapter.
+  the bundled Guzzle adapter. The version is resolved from composer package
+  metadata (`ApaczkaClient::version()`), not hardcoded.
 - `CodRequest`: `bankaccount` / `bankaccount_id` payout fields.
 - `Address`: `state_code` (required e.g. for US destinations) and `is_residential`.
 - `Order::getPickup()` returns a typed `OrderPickup` object.

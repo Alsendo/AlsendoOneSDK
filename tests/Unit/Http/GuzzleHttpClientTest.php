@@ -23,7 +23,7 @@ class GuzzleHttpClientTest extends TestCase
 
         $userAgent = $history[0]['request']->getHeaderLine('User-Agent');
         $this->assertSame(
-            sprintf('AlsendoOneSDK/%s PHP/%s', ApaczkaClient::VERSION, PHP_VERSION),
+            sprintf('AlsendoOneSDK/%s PHP/%s', ApaczkaClient::version(), PHP_VERSION),
             $userAgent
         );
     }
