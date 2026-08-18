@@ -1,0 +1,13 @@
+/vendor/
+/tmp-tests/
+composer.lock
+.php-cs-fixer.cache
+.phpunit.result.cache
+.phpunit.cache/
+/build/
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+.env
