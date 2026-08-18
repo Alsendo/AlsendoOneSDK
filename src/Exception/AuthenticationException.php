@@ -10,6 +10,6 @@ namespace AlsendoOne\SDK\Exception;
  * The Apaczka API v2 signals authentication failures with the same status
  * (400) as any other error, so they cannot be distinguished reliably.
  */
-class AuthenticationException extends ApaczkaException
+class AuthenticationException extends AlsendoException
 {
 }

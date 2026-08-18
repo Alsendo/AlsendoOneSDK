@@ -9,13 +9,13 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use AlsendoOne\SDK\ApaczkaClient;
+use AlsendoOne\SDK\AlsendoClient;
 use AlsendoOne\SDK\DTO\Address;
 use AlsendoOne\SDK\DTO\Request\NotificationRequest;
 use AlsendoOne\SDK\DTO\Request\OrderRequest;
 use AlsendoOne\SDK\DTO\Request\PickupRequest;
 use AlsendoOne\SDK\DTO\Request\ShipmentRequest;
-use AlsendoOne\SDK\Enum\Service;
+use AlsendoOne\SDK\Type\Service;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Exception\ConnectionException;
 
@@ -23,48 +23,54 @@ use AlsendoOne\SDK\Exception\ConnectionException;
 $appId = 'your_app_id';
 $appSecret = 'your_app_secret';
 
-$client = new ApaczkaClient($appId, $appSecret);
+$client = new AlsendoClient($appId, $appSecret);
 
 // Build order using typed DTOs
+// Replace with a service available on your account, see getServiceStructure()
+$service = Service::from(Service::DpdCourier);
+
 $order = OrderRequest::create()
-    ->setService(Service::DpdCourier) // Replace with a service available on your account, see getServiceStructure()
+    ->setService($service)
     ->setSenderAddress(new Address(
-        name: 'Firma Sp. z o.o.',
-        contactPerson: 'Jan Kowalski',
-        email: 'jan@example.com',
-        phone: '500100200',
-        line1: 'Marszalkowska 1/10',
-        postalCode: '00-001',
-        city: 'Warszawa',
-        countryCode: 'PL'
+        'Firma Sp. z o.o.',       // name
+        'Jan Kowalski',           // contact person
+        'jan@example.com',        // email
+        '500100200',              // phone
+        'Marszalkowska 1/10',     // line1
+        null,                     // line2
+        '00-001',                 // postal code
+        'Warszawa',               // city
+        'PL'                      // country code
     ))
     ->setReceiverAddress(new Address(
-        name: 'Anna Nowak',
-        email: 'anna@example.com',
-        phone: '600300400',
-        line1: 'Dluga 15',
-        postalCode: '80-831',
-        city: 'Gdansk',
-        countryCode: 'PL'
+        'Anna Nowak',
+        null,
+        'anna@example.com',
+        '600300400',
+        'Dluga 15',
+        null,
+        '80-831',
+        'Gdansk',
+        'PL'
     ))
     ->addShipment(new ShipmentRequest(
-        shipmentTypeCode: 'PACKAGE',
-        weight: 2500,   // grams
-        length: 400,    // mm
-        width: 300,     // mm
-        height: 200     // mm
+        'PACZKA',   // shipment type code
+        2.5,        // weight in kilograms
+        40,         // length in cm
+        30,         // width in cm
+        20          // height in cm
     ))
     ->setPickup(new PickupRequest(
-        type: 'COURIER',
-        date: date('Y-m-d', strtotime('+1 day')),
-        hoursFrom: '10:00',
-        hoursTo: '16:00'
+        'COURIER',
+        date('Y-m-d', strtotime('+1 day')),
+        '10:00',
+        '16:00'
     ))
     ->setNotification(
         (new NotificationRequest())
-            ->setNew(receiverEmail: true, senderEmail: true)
-            ->setSent(receiverEmail: true)
-            ->setDelivered(receiverEmail: true)
+            ->setNew(true, false, true)   // receiver e-mail + sender e-mail
+            ->setSent(true)               // receiver e-mail
+            ->setDelivered(true)          // receiver e-mail
     )
     ->setComment('Fragile items, please handle with care.');
 
@@ -96,7 +102,7 @@ try {
 
     // Step 3: Check pickup hours and schedule
     echo PHP_EOL . "Checking available pickup hours..." . PHP_EOL;
-    $pickupHours = $client->getPickupHours('00-001', Service::DpdCourier);
+    $pickupHours = $client->getPickupHours('00-001', $service);
 
     $hours = $pickupHours->getHours();
     if (!empty($hours)) {

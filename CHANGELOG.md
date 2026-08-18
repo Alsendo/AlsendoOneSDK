@@ -14,7 +14,7 @@ First stable release.
   incoming push-tracking notifications sent to `push_tracking_url`
   (`PushTrackingNotification`, `PushTrackingStatus`,
   `PushTrackingOperatorStatus` DTOs, `WebhookVerificationException`).
-- `ApaczkaClientInterface` — type-hint the interface to keep the client
+- `AlsendoClientInterface` — type-hint the interface to keep the client
   mockable in consuming applications.
 - `registerCustomer()` and `checkData()` — privileged account endpoints
   (`CustomerRegisterRequest`, `CustomerRegisterResponse` DTOs).
@@ -23,12 +23,12 @@ First stable release.
 - `LoggingHttpClient` — opt-in PSR-3 logging decorator (never logs
   credentials or signed payloads); `psr/log` added to `require`.
 - `SECURITY.md` with a private vulnerability-reporting channel.
-- `ApaczkaClient::getTracking()` — tracking events for a waybill number
+- `AlsendoClient::getTracking()` — tracking events for a waybill number
   (`TrackingResponse`, `TrackingEvent` DTOs).
-- `ApaczkaClient::SANDBOX_URL` constant with the sandbox base URL.
+- `AlsendoClient::SANDBOX_URL` constant with the sandbox base URL.
 - Default `User-Agent` header (`AlsendoOneSDK/<version> PHP/<version>`) sent by
   the bundled Guzzle adapter. The version is resolved from composer package
-  metadata (`ApaczkaClient::version()`), not hardcoded.
+  metadata (`AlsendoClient::version()`), not hardcoded.
 - `CodRequest`: `bankaccount` / `bankaccount_id` payout fields.
 - `Address`: `state_code` (required e.g. for US destinations) and `is_residential`.
 - `Order::getPickup()` returns a typed `OrderPickup` object.
@@ -36,7 +36,7 @@ First stable release.
   service id.
 - Service enum: DPD Pickup to parcel machines (32, 33) and Poczta Polska
   Ukraina (71).
-- GitHub Actions CI (PHPUnit on PHP 8.1–8.4 incl. lowest deps, PHPStan,
+- GitHub Actions CI (PHPUnit on PHP 7.4–8.4 incl. lowest deps, PHPStan,
   PHP-CS-Fixer).
 
 ### Fixed
@@ -57,8 +57,16 @@ First stable release.
   `Service` enum, pickup hours keyed by date, correct sandbox host).
 
 ### Changed
+- **Rebrand: `ApaczkaClient` → `AlsendoClient`**, `ApaczkaClientInterface` →
+  `AlsendoClientInterface`, `ApaczkaException` → `AlsendoException`
+  (adopts the intent of PR #1).
+- **Minimum PHP version lowered to 7.4.** The `Service` enum is now a
+  class (`AlsendoOne\SDK\Type\Service`) with int constants and cached
+  instances via `Service::from()` / `Service::tryFrom()` — two instances of
+  the same service id are identical (`===`). Call sites change from
+  `Service::DpdCourier` (enum case) to `Service::from(Service::DpdCourier)`.
 - `ShipmentRequest::$weight` and `Shipment::$weight`/`$weightBillable` are
   `float` (kilograms) to support sub-kilogram parcels.
-- Minimum PHP version documented as 8.1 (backed enums), matching composer.json.
+- Minimum PHP version aligned between README and composer.json.
 - `psr/http-client` and `psr/http-factory` removed from `require` — they were
   never used; the SDK ships its own `HttpClientInterface` abstraction.

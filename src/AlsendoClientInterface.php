@@ -18,16 +18,16 @@ use AlsendoOne\SDK\DTO\Response\TrackingResponse;
 use AlsendoOne\SDK\DTO\Response\TurnInResponse;
 use AlsendoOne\SDK\DTO\Response\Valuation;
 use AlsendoOne\SDK\DTO\Response\WaybillResponse;
-use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Http\Response;
+use AlsendoOne\SDK\Type\Service;
 
 /**
  * Contract of the Apaczka API v2 client — implement or mock this interface
- * in consuming applications instead of depending on {@see ApaczkaClient}
+ * in consuming applications instead of depending on {@see AlsendoClient}
  * directly.
  */
-interface ApaczkaClientInterface
+interface AlsendoClientInterface
 {
     /**
      * @throws ApiException

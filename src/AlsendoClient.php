@@ -19,11 +19,11 @@ use AlsendoOne\SDK\DTO\Response\TrackingResponse;
 use AlsendoOne\SDK\DTO\Response\TurnInResponse;
 use AlsendoOne\SDK\DTO\Response\Valuation;
 use AlsendoOne\SDK\DTO\Response\WaybillResponse;
-use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Http\GuzzleHttpClient;
 use AlsendoOne\SDK\Http\HttpClientInterface;
 use AlsendoOne\SDK\Http\Response;
+use AlsendoOne\SDK\Type\Service;
 use Composer\InstalledVersions;
 
 /**
@@ -33,7 +33,7 @@ use Composer\InstalledVersions;
  * use the {@see request()} method directly, which returns a {@see Response} object
  * with {@see Response::getResponseData()} providing the raw array.
  */
-class ApaczkaClient implements ApaczkaClientInterface
+class AlsendoClient implements AlsendoClientInterface
 {
     /**
      * Base URL of the sandbox environment. Pass as the $baseUrl constructor

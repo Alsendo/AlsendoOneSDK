@@ -9,7 +9,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use AlsendoOne\SDK\ApaczkaClient;
+use AlsendoOne\SDK\AlsendoClient;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Exception\ConnectionException;
 
@@ -17,7 +17,7 @@ use AlsendoOne\SDK\Exception\ConnectionException;
 $appId = 'your_app_id';
 $appSecret = 'your_app_secret';
 
-$client = new ApaczkaClient($appId, $appSecret);
+$client = new AlsendoClient($appId, $appSecret);
 
 try {
     $structure = $client->getServiceStructure();

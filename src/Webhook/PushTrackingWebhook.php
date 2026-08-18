@@ -74,7 +74,7 @@ class PushTrackingWebhook
             $this->parse($rawBody);
 
             return true;
-        } catch (WebhookVerificationException) {
+        } catch (WebhookVerificationException $e) {
             return false;
         }
     }

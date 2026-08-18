@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AlsendoOne\SDK\Http;
 
-use AlsendoOne\SDK\ApaczkaClient;
+use AlsendoOne\SDK\AlsendoClient;
 use AlsendoOne\SDK\Exception\ConnectionException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -22,7 +22,7 @@ class GuzzleHttpClient implements HttpClientInterface
             'timeout' => 30,
             'connect_timeout' => 10,
             'headers' => [
-                'User-Agent' => sprintf('AlsendoOneSDK/%s PHP/%s', ApaczkaClient::version(), PHP_VERSION),
+                'User-Agent' => sprintf('AlsendoOneSDK/%s PHP/%s', AlsendoClient::version(), PHP_VERSION),
             ],
         ];
 

@@ -9,7 +9,7 @@ Official PHP client for [Apaczka API v2](https://www.apaczka.pl/api/v2/). Ship p
 
 ## Requirements
 
-- PHP 8.1 or higher
+- PHP 7.4 or higher
 - `ext-json`
 - An HTTP client implementing `HttpClientInterface` (Guzzle 7 adapter included)
 
@@ -32,9 +32,9 @@ composer require guzzlehttp/guzzle guzzlehttp/psr7
 
 require __DIR__ . '/vendor/autoload.php';
 
-use AlsendoOne\SDK\ApaczkaClient;
+use AlsendoOne\SDK\AlsendoClient;
 
-$client = new ApaczkaClient(
+$client = new AlsendoClient(
     'your_app_id',
     'your_app_secret'
 );
@@ -127,7 +127,7 @@ These endpoints require dedicated partner privileges on the calling application.
 |--------|-------------|
 | `request(string $route, array $params = [])` | Send a signed request to any API endpoint. Returns a `Response` object |
 
-All client methods are also described by `ApaczkaClientInterface` — type-hint
+All client methods are also described by `AlsendoClientInterface` — type-hint
 the interface in your application to keep the client mockable in tests.
 
 ## Tracking webhooks
@@ -167,7 +167,7 @@ Notes:
 
 ## Error handling
 
-The SDK throws exceptions extending `AlsendoOne\SDK\Exception\ApaczkaException`:
+The SDK throws exceptions extending `AlsendoOne\SDK\Exception\AlsendoException`:
 
 - `ApiException` — the API returned an error. Note that the Apaczka API responds
   with HTTP 200 even on failures; errors are signalled by a non-200 `status`
@@ -224,7 +224,7 @@ class MyHttpClient implements HttpClientInterface
     }
 }
 
-$client = new ApaczkaClient('app_id', 'app_secret', new MyHttpClient());
+$client = new AlsendoClient('app_id', 'app_secret', new MyHttpClient());
 ```
 
 The bundled adapter accepts any Guzzle config options — for example to raise
@@ -233,7 +233,7 @@ the timeouts (defaults: 30 s request, 10 s connect):
 ```php
 use AlsendoOne\SDK\Http\GuzzleHttpClient;
 
-$client = new ApaczkaClient(
+$client = new AlsendoClient(
     'app_id',
     'app_secret',
     new GuzzleHttpClient(['timeout' => 120])
@@ -254,7 +254,7 @@ $httpClient = new LoggingHttpClient(
     $psrLogger
 );
 
-$client = new ApaczkaClient('app_id', 'app_secret', $httpClient);
+$client = new AlsendoClient('app_id', 'app_secret', $httpClient);
 ```
 
 `RetryingHttpClient` retries only network failures (`ConnectionException`),
@@ -267,15 +267,15 @@ logger; request parameters (credentials, signed payload) are never logged.
 
 ## Sandbox
 
-To test against the sandbox environment, pass `ApaczkaClient::SANDBOX_URL` as
+To test against the sandbox environment, pass `AlsendoClient::SANDBOX_URL` as
 the base URL (sandbox credentials are separate from production ones):
 
 ```php
-$client = new ApaczkaClient(
+$client = new AlsendoClient(
     'app_id',
     'app_secret',
     null,                           // use default Guzzle client
-    ApaczkaClient::SANDBOX_URL
+    AlsendoClient::SANDBOX_URL
 );
 ```
 

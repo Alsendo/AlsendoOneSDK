@@ -8,6 +8,6 @@ namespace AlsendoOne\SDK\Exception;
  * Thrown when an incoming push-tracking webhook cannot be verified —
  * malformed payload or signature mismatch.
  */
-class WebhookVerificationException extends ApaczkaException
+class WebhookVerificationException extends AlsendoException
 {
 }
