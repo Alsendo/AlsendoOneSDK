@@ -112,11 +112,58 @@ You can obtain your API credentials in the [Apaczka panel](https://www.apaczka.p
 | `getTurnIn(array $orderIds)` | Get batch turn-in confirmation as base64-encoded PDF |
 | `getDispatchCode(int $orderId)` | Get carrier dispatch/return code for an order |
 
+### Account (privileged)
+
+These endpoints require dedicated partner privileges on the calling application.
+
+| Method | Description |
+|--------|-------------|
+| `registerCustomer(CustomerRegisterRequest\|array $customerData)` | Register a new customer account; returns provisioned API credentials |
+| `checkData(string $vatId)` | Validate a VAT id (rate-limited to 100 calls/day); throws on an invalid id |
+
 ### Raw request
 
 | Method | Description |
 |--------|-------------|
 | `request(string $route, array $params = [])` | Send a signed request to any API endpoint. Returns a `Response` object |
+
+All client methods are also described by `ApaczkaClientInterface` — type-hint
+the interface in your application to keep the client mockable in tests.
+
+## Tracking webhooks
+
+When you create an order with `push_tracking_url`, the platform POSTs a signed
+JSON notification to that URL on every status change. Use
+`PushTrackingWebhook` to verify the signature (computed with your own
+`app_secret`) and parse the payload:
+
+```php
+use AlsendoOne\SDK\Exception\WebhookVerificationException;
+use AlsendoOne\SDK\Webhook\PushTrackingWebhook;
+
+$webhook = new PushTrackingWebhook('your_app_id', 'your_app_secret');
+
+try {
+    $notification = $webhook->parse(file_get_contents('php://input'));
+} catch (WebhookVerificationException $e) {
+    http_response_code(400);
+    exit;
+}
+
+foreach ($notification->getStatuses() as $status) {
+    // e.g. "ON_THE_WAY", "OUT_FOR_DELIVERY", "DELIVERED", "RETURNED"
+    updateShipmentStatus($notification->getOrderNumber(), $status->getStatus());
+}
+
+http_response_code(200); // acknowledge the notification
+```
+
+Notes:
+
+- Respond with HTTP 200, otherwise the platform may retry the delivery.
+- Push tracking is only registered for supported couriers; `statuses` may be
+  an empty array.
+- Timestamps are `Y-m-d\TH:i:s` without an offset, in Europe/Warsaw time.
 
 ## Error handling
 
@@ -192,6 +239,31 @@ $client = new ApaczkaClient(
     new GuzzleHttpClient(['timeout' => 120])
 );
 ```
+
+### Retry and logging decorators
+
+Two optional decorators wrap any `HttpClientInterface` implementation:
+
+```php
+use AlsendoOne\SDK\Http\GuzzleHttpClient;
+use AlsendoOne\SDK\Http\LoggingHttpClient;
+use AlsendoOne\SDK\Http\RetryingHttpClient;
+
+$httpClient = new LoggingHttpClient(
+    new RetryingHttpClient(new GuzzleHttpClient(), maxRetries: 2, delayMs: 500),
+    $psrLogger
+);
+
+$client = new ApaczkaClient('app_id', 'app_secret', $httpClient);
+```
+
+`RetryingHttpClient` retries only network failures (`ConnectionException`),
+never API error envelopes. Beware: a network failure does not guarantee the
+request did not reach the server — retrying non-idempotent operations such as
+`sendOrder()` may create duplicate orders.
+
+`LoggingHttpClient` logs the URL, statuses and duration through any PSR-3
+logger; request parameters (credentials, signed payload) are never logged.
 
 ## Sandbox
 

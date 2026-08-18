@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `PushTrackingWebhook` — verification (HMAC-SHA256) and typed parsing of
+  incoming push-tracking notifications sent to `push_tracking_url`
+  (`PushTrackingNotification`, `PushTrackingStatus`,
+  `PushTrackingOperatorStatus` DTOs, `WebhookVerificationException`).
+- `ApaczkaClientInterface` — type-hint the interface to keep the client
+  mockable in consuming applications.
+- `registerCustomer()` and `checkData()` — privileged account endpoints
+  (`CustomerRegisterRequest`, `CustomerRegisterResponse` DTOs).
+- `RetryingHttpClient` — opt-in decorator retrying network failures with
+  linear backoff (never retries API error envelopes).
+- `LoggingHttpClient` — opt-in PSR-3 logging decorator (never logs
+  credentials or signed payloads); `psr/log` added to `require`.
+- `SECURITY.md` with a private vulnerability-reporting channel.
 - `ApaczkaClient::getTracking()` — tracking events for a waybill number
   (`TrackingResponse`, `TrackingEvent` DTOs).
 - `ApaczkaClient::SANDBOX_URL` constant with the sandbox base URL.

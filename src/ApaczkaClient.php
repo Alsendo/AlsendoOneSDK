@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace AlsendoOne\SDK;
 
 use AlsendoOne\SDK\Auth\SignatureGenerator;
+use AlsendoOne\SDK\DTO\Request\CustomerRegisterRequest;
 use AlsendoOne\SDK\DTO\Request\OrderRequest;
 use AlsendoOne\SDK\DTO\Response\AccessPoint;
+use AlsendoOne\SDK\DTO\Response\CustomerRegisterResponse;
 use AlsendoOne\SDK\DTO\Response\DispatchCodeResponse;
 use AlsendoOne\SDK\DTO\Response\Order;
 use AlsendoOne\SDK\DTO\Response\OrderShort;
@@ -30,7 +32,7 @@ use AlsendoOne\SDK\Http\Response;
  * use the {@see request()} method directly, which returns a {@see Response} object
  * with {@see Response::getResponseData()} providing the raw array.
  */
-class ApaczkaClient
+class ApaczkaClient implements ApaczkaClientInterface
 {
     /**
      * SDK version, sent in the User-Agent header by the bundled Guzzle adapter.
@@ -299,6 +301,43 @@ class ApaczkaClient
             fn (array $item) => AccessPoint::fromArray($item),
             $data['points'] ?? []
         ));
+    }
+
+    // --- Account (privileged endpoints) ---
+
+    /**
+     * Register a new customer account and provision API credentials for it.
+     *
+     * Requires the partner-only "register via API" privilege on the calling
+     * application.
+     *
+     * @param CustomerRegisterRequest|array<string, mixed> $customerData
+     * @throws ApiException
+     */
+    public function registerCustomer($customerData): CustomerRegisterResponse
+    {
+        $data = $customerData instanceof CustomerRegisterRequest ? $customerData->toArray() : $customerData;
+
+        $response = $this->request('customer_register/', [
+            'customer' => $data,
+        ]);
+
+        return CustomerRegisterResponse::fromArray($response->getResponseData());
+    }
+
+    /**
+     * Validate a VAT id against the Apaczka registry.
+     *
+     * Requires a dedicated privilege and is rate-limited (100 calls per day).
+     * The API signals an invalid or unknown VAT id with an error envelope,
+     * so this method throws an {@see ApiException} in that case and returns
+     * normally when the VAT id checks out.
+     *
+     * @throws ApiException
+     */
+    public function checkData(string $vatId): void
+    {
+        $this->request('check_data/', ['vat_id' => $vatId]);
     }
 
     // --- Raw request ---

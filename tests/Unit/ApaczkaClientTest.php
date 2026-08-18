@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace AlsendoOne\SDK\Tests\Unit;
 
 use AlsendoOne\SDK\ApaczkaClient;
+use AlsendoOne\SDK\ApaczkaClientInterface;
+use AlsendoOne\SDK\DTO\Request\CustomerRegisterRequest;
 use AlsendoOne\SDK\DTO\Response\AccessPoint;
 use AlsendoOne\SDK\DTO\Response\DispatchCodeResponse;
 use AlsendoOne\SDK\DTO\Response\Order;
@@ -433,6 +435,39 @@ class ApaczkaClientTest extends TestCase
             });
 
         $this->client->getTracking('WB123');
+    }
+
+    public function testRegisterCustomer(): void
+    {
+        $this->mockPostResponse('https://api.example.com/api/v2/customer_register/', [
+            'app_id' => 'new_app_id',
+            'app_secret' => 'new_app_secret',
+        ]);
+
+        $result = $this->client->registerCustomer(
+            CustomerRegisterRequest::create()
+                ->setLogin('new@example.com')
+                ->setEmail('new@example.com')
+                ->setPassword('secret123')
+                ->setPhone('500100200')
+        );
+
+        $this->assertSame('new_app_id', $result->getAppId());
+        $this->assertSame('new_app_secret', $result->getAppSecret());
+    }
+
+    public function testCheckDataPassesForValidVatId(): void
+    {
+        $this->mockPostResponse('https://api.example.com/api/v2/check_data/', []);
+
+        $this->client->checkData('5213575143');
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function testClientImplementsInterface(): void
+    {
+        $this->assertInstanceOf(ApaczkaClientInterface::class, $this->client);
     }
 
     public function testApiErrorThrowsApiException(): void
