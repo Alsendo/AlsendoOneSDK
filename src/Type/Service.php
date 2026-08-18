@@ -2,139 +2,186 @@
 
 declare(strict_types=1);
 
-namespace AlsendoOne\SDK\Enum;
+namespace AlsendoOne\SDK\Type;
+
+use InvalidArgumentException;
 
 /**
- * Available shipping services accessible through Apaczka API v2.
+ * Available shipping services accessible through the Alsendo (Apaczka) API v2.
  *
- * Each case name is a human-readable identifier, and the backed value is the service ID.
+ * Each constant is a human-readable identifier whose value is the service ID.
+ * Use {@see Service::from()} / {@see Service::tryFrom()} to obtain a Service
+ * instance carrying the id in its $value property, with code(), label() and
+ * supplier() accessors. Instances are cached, so two instances of the same
+ * service id are identical (===).
  */
-enum Service: int
+class Service
 {
-    // UPS
-    case UpsStandard = 1;
-    case UpsExpressSaver = 2;
-    case UpsExpressBy12 = 3;
-    case UpsExpressPlusBy9 = 4;
-    case UpsStandardInternational = 5;
-    case UpsExpressSaverInternational = 6;
-    case UpsExpedited = 8;
-    case UpsAccessPointToHome = 13;
-    case UpsAccessPointToAccessPoint = 14;
-    case UpsHomeToAccessPoint = 15;
-    case UpsHomeToAccessPointInternational = 16;
+    public const UpsStandard = 1;
+    public const UpsExpressSaver = 2;
+    public const UpsExpressBy12 = 3;
+    public const UpsExpressPlusBy9 = 4;
+    public const UpsStandardInternational = 5;
+    public const UpsExpressSaverInternational = 6;
+    public const UpsExpedited = 8;
+    public const UpsAccessPointToHome = 13;
+    public const UpsAccessPointToAccessPoint = 14;
+    public const UpsHomeToAccessPoint = 15;
+    public const UpsHomeToAccessPointInternational = 16;
+    public const DpdCourier = 21;
+    public const DpdCourierEurope = 22;
+    public const DpdPickupHomeToPoint = 23;
+    public const DpdCourierBy930 = 24;
+    public const DpdCourierBy12 = 25;
+    public const DpdPickupPointToPoint = 26;
+    public const DpdMaxInternational = 27;
+    public const DpdAllegroSmart = 28;
+    public const DpdPickupEurope = 29;
+    public const DpdPickupPointToHome = 30;
+    public const DpdPickupHomeToMachine = 32;
+    public const DpdPickupPointToMachine = 33;
+    public const InPostPaczkomatAllegroSmart = 40;
+    public const InPostPaczkomat = 41;
+    public const InPostCourier = 42;
+    public const InPostPaczkomatToHome = 43;
+    public const InPostInternationalHomeToPoint = 45;
+    public const InPostInternationalPaczkomat = 46;
+    public const InPostFastReturnsPaczkomatToHome = 47;
+    public const OrlenPaczkaPointToPoint = 50;
+    public const OrlenPaczkaHomeToPoint = 53;
+    public const PocztexCourierHomeToHome = 60;
+    public const PocztexCourierBy9 = 61;
+    public const PocztexCourierBy12 = 62;
+    public const PocztexCourierBy17 = 63;
+    public const PocztexCourierHomeToPoint = 64;
+    public const PocztexPointToHome = 65;
+    public const PocztexPointToPoint = 66;
+    public const PocztexAllegroSmart = 67;
+    public const PocztexAllegroSmartPointToPoint = 68;
+    public const PocztexCargo = 69;
+    public const PocztaPolskaUkraine = 71;
+    public const DhlParcelCourier = 82;
+    public const DhlParcelCourierBy12 = 83;
+    public const DhlParcelCourierBy9 = 84;
+    public const DhlPopHomeToPoint = 86;
+    public const DhlPopPointToHome = 87;
+    public const DhlAlsendoInternationalWarehouseToHome = 90;
+    public const DhlParcelConnectHomeToHome = 91;
+    public const DhlParcelConnectHomeToPoint = 92;
+    public const RabenInternational = 140;
+    public const GeisCargo = 150;
+    public const FedExCourier = 151;
+    public const FedExInternationalEconomy = 153;
+    public const AlsendoDpdGermany = 191;
+    public const GlsInternational = 200;
+    public const GlsCourier = 201;
+    public const GlsDomesticHomeToHome = 202;
+    public const GlsDomesticHomeToPoint = 203;
+    public const GlsDomesticPointToHome = 204;
+    public const GlsInternationalHomeToHome = 205;
+    public const GlsInternationalHomeToPoint = 206;
+    public const GlsInternationalPointToHome = 207;
+    public const GlsInternationalImportPointToHome = 208;
+    public const HellmannDomestic = 230;
+    public const HellmannInternational = 231;
+    public const RhenusLogistics = 240;
+    public const GeodisDomestic = 250;
+    public const GeodisInternational = 251;
+    public const AmbroExpress = 260;
+    public const AmbroExpressInternational = 261;
+    public const AlsendoInternationalCblWarehouseToHome = 310;
+    public const AlsendoInternationalCblWarehouseToPoint = 311;
+    public const AlsendoInternationalPpCblPointToHome = 312;
+    public const AlsendoInternationalPpCblPointToPoint = 315;
+    public const PacketaLinehaulPointToHome = 313;
+    public const PacketaLinehaulPointToPoint = 314;
+    public const PacketaWarehouseToHome = 316;
+    public const PacketaWarehouseToPoint = 317;
 
-    // DPD
-    case DpdCourier = 21;
-    case DpdCourierEurope = 22;
-    case DpdPickupHomeToPoint = 23;
-    case DpdCourierBy930 = 24;
-    case DpdCourierBy12 = 25;
-    case DpdPickupPointToPoint = 26;
-    case DpdMaxInternational = 27;
-    case DpdAllegroSmart = 28;
-    case DpdPickupEurope = 29;
-    case DpdPickupPointToHome = 30;
-    case DpdPickupHomeToMachine = 32;
-    case DpdPickupPointToMachine = 33;
+    /** @var int */
+    public $value;
 
-    // InPost
-    case InPostPaczkomatAllegroSmart = 40;
-    case InPostPaczkomat = 41;
-    case InPostCourier = 42;
-    case InPostPaczkomatToHome = 43;
-    case InPostInternationalHomeToPoint = 45;
-    case InPostInternationalPaczkomat = 46;
-    case InPostFastReturnsPaczkomatToHome = 47;
+    /** @var array<int, self> */
+    private static $instances = [];
 
-    // Orlen Paczka
-    case OrlenPaczkaPointToPoint = 50;
-    case OrlenPaczkaHomeToPoint = 53;
+    private function __construct(int $value)
+    {
+        $this->value = $value;
+    }
 
-    // Poczta Polska
-    case PocztexCourierHomeToHome = 60;
-    case PocztexCourierBy9 = 61;
-    case PocztexCourierBy12 = 62;
-    case PocztexCourierBy17 = 63;
-    case PocztexCourierHomeToPoint = 64;
-    case PocztexPointToHome = 65;
-    case PocztexPointToPoint = 66;
-    case PocztexAllegroSmart = 67;
-    case PocztexAllegroSmartPointToPoint = 68;
-    case PocztexCargo = 69;
-    case PocztaPolskaUkraine = 71;
+    /**
+     * Create a Service instance from the integer service ID.
+     *
+     * @throws InvalidArgumentException when the service ID is unknown
+     */
+    public static function from(int $value): self
+    {
+        $service = self::tryFrom($value);
+        if ($service === null) {
+            throw new InvalidArgumentException(sprintf('Unknown service ID: %d', $value));
+        }
 
-    // DHL
-    case DhlParcelCourier = 82;
-    case DhlParcelCourierBy12 = 83;
-    case DhlParcelCourierBy9 = 84;
-    case DhlPopHomeToPoint = 86;
-    case DhlPopPointToHome = 87;
-    case DhlAlsendoInternationalWarehouseToHome = 90;
-    case DhlParcelConnectHomeToHome = 91;
-    case DhlParcelConnectHomeToPoint = 92;
+        return $service;
+    }
 
-    // Raben
-    case RabenInternational = 140;
+    /**
+     * Try to create a Service instance, returning null for unknown IDs.
+     */
+    public static function tryFrom(int $value): ?self
+    {
+        if (!isset(self::codeMap()[$value])) {
+            return null;
+        }
 
-    // Geis Cargo
-    case GeisCargo = 150;
+        if (!isset(self::$instances[$value])) {
+            self::$instances[$value] = new self($value);
+        }
 
-    // FedEx
-    case FedExCourier = 151;
-    case FedExInternationalEconomy = 153;
+        return self::$instances[$value];
+    }
 
-    // Apaczka DPD Niemcy
-    case ApaczkaDpdGermany = 191;
-
-    // GLS
-    case GlsInternational = 200;
-    case GlsCourier = 201;
-    case GlsDomesticHomeToHome = 202;
-    case GlsDomesticHomeToPoint = 203;
-    case GlsDomesticPointToHome = 204;
-    case GlsInternationalHomeToHome = 205;
-    case GlsInternationalHomeToPoint = 206;
-    case GlsInternationalPointToHome = 207;
-    case GlsInternationalImportPointToHome = 208;
-
-    // Hellmann
-    case HellmannDomestic = 230;
-    case HellmannInternational = 231;
-
-    // Rhenus
-    case RhenusLogistics = 240;
-
-    // Geodis
-    case GeodisDomestic = 250;
-    case GeodisInternational = 251;
-
-    // Ambro Express
-    case AmbroExpress = 260;
-    case AmbroExpressInternational = 261;
-
-    // Alsendo International (CBL)
-    case AlsendoInternationalCblWarehouseToHome = 310;
-    case AlsendoInternationalCblWarehouseToPoint = 311;
-
-    // Alsendo International (PP CBL)
-    case AlsendoInternationalPpCblPointToHome = 312;
-    case AlsendoInternationalPpCblPointToPoint = 315;
-
-    // Packeta (PP Linehaul)
-    case PacketaLinehaulPointToHome = 313;
-    case PacketaLinehaulPointToPoint = 314;
-
-    // Packeta
-    case PacketaWarehouseToHome = 316;
-    case PacketaWarehouseToPoint = 317;
+    /**
+     * All known services.
+     *
+     * @return self[]
+     */
+    public static function cases(): array
+    {
+        return array_map(static function (int $value): self {
+            return self::from($value);
+        }, array_keys(self::codeMap()));
+    }
 
     /**
      * Get the original API service code.
      */
     public function code(): string
     {
-        return match ($this) {
+        return self::codeMap()[$this->value];
+    }
+
+    /**
+     * Get the human-readable service name.
+     */
+    public function label(): string
+    {
+        return self::labelMap()[$this->value];
+    }
+
+    /**
+     * Get the supplier name for this service.
+     */
+    public function supplier(): string
+    {
+        return self::supplierMap()[$this->value];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function codeMap(): array
+    {
+        return [
             self::UpsStandard => 'UPS_K_STANDARD',
             self::UpsExpressSaver => 'UPS_K_EX_SAV',
             self::UpsExpressBy12 => 'UPS_K_EX',
@@ -190,7 +237,7 @@ enum Service: int
             self::GeisCargo => 'KEX_EXPRESS',
             self::FedExCourier => 'FEDEX',
             self::FedExInternationalEconomy => 'FEDEX_FOREIGN_ECONOMY',
-            self::ApaczkaDpdGermany => 'APACZKA_DPD',
+            self::AlsendoDpdGermany => 'APACZKA_DPD',
             self::GlsInternational => 'GLS_FOREIGN',
             self::GlsCourier => 'GLS',
             self::GlsDomesticHomeToHome => 'GLS_DOMESTIC_D2D',
@@ -215,15 +262,15 @@ enum Service: int
             self::PacketaLinehaulPointToPoint => 'PP_PACKETA_LINEHAUL_P2P',
             self::PacketaWarehouseToHome => 'PACKETA_P2D',
             self::PacketaWarehouseToPoint => 'PACKETA_P2P',
-        };
+        ];
     }
 
     /**
-     * Get the human-readable service name.
+     * @return array<int, string>
      */
-    public function label(): string
+    private static function labelMap(): array
     {
-        return match ($this) {
+        return [
             self::UpsStandard => 'UPS Standard',
             self::UpsExpressSaver => 'UPS Express Saver',
             self::UpsExpressBy12 => 'UPS Express Plus do 12:00',
@@ -279,7 +326,7 @@ enum Service: int
             self::GeisCargo => 'Geis Cargo',
             self::FedExCourier => 'FEDEX Kurier',
             self::FedExInternationalEconomy => 'FedEx International Economy',
-            self::ApaczkaDpdGermany => 'Apaczka Niemcy',
+            self::AlsendoDpdGermany => 'Apaczka Niemcy',
             self::GlsInternational => 'GLS Zagranica',
             self::GlsCourier => 'GLS Kurier',
             self::GlsDomesticHomeToHome => 'GLS Kurier Drzwi-Drzwi',
@@ -304,61 +351,95 @@ enum Service: int
             self::PacketaLinehaulPointToPoint => 'Packeta Punkt-Punkt',
             self::PacketaWarehouseToHome => 'Packeta Magazyn-Drzwi',
             self::PacketaWarehouseToPoint => 'Packeta Magazyn-Punkt',
-        };
+        ];
     }
 
     /**
-     * Get the supplier name for this service.
+     * @return array<int, string>
      */
-    public function supplier(): string
+    private static function supplierMap(): array
     {
-        return match ($this) {
-            self::UpsStandard, self::UpsExpressSaver, self::UpsExpressBy12, self::UpsExpressPlusBy9,
-            self::UpsStandardInternational, self::UpsExpressSaverInternational, self::UpsExpedited,
-            self::UpsAccessPointToHome, self::UpsAccessPointToAccessPoint,
-            self::UpsHomeToAccessPoint, self::UpsHomeToAccessPointInternational => 'UPS',
-
-            self::DpdCourier, self::DpdCourierEurope, self::DpdPickupHomeToPoint, self::DpdCourierBy930,
-            self::DpdCourierBy12, self::DpdPickupPointToPoint, self::DpdMaxInternational, self::DpdAllegroSmart,
-            self::DpdPickupEurope, self::DpdPickupPointToHome, self::DpdPickupHomeToMachine,
-            self::DpdPickupPointToMachine, self::ApaczkaDpdGermany => 'DPD',
-
-            self::InPostPaczkomatAllegroSmart, self::InPostPaczkomat, self::InPostCourier,
-            self::InPostPaczkomatToHome, self::InPostInternationalHomeToPoint,
-            self::InPostInternationalPaczkomat, self::InPostFastReturnsPaczkomatToHome => 'INPOST',
-
-            self::OrlenPaczkaPointToPoint, self::OrlenPaczkaHomeToPoint => 'ORLEN',
-
-            self::PocztexCourierHomeToHome, self::PocztexCourierBy9, self::PocztexCourierBy12,
-            self::PocztexCourierBy17, self::PocztexCourierHomeToPoint, self::PocztexPointToHome,
-            self::PocztexPointToPoint, self::PocztexAllegroSmart,
-            self::PocztexAllegroSmartPointToPoint, self::PocztexCargo,
+        return [
+            self::UpsStandard => 'UPS',
+            self::UpsExpressSaver => 'UPS',
+            self::UpsExpressBy12 => 'UPS',
+            self::UpsExpressPlusBy9 => 'UPS',
+            self::UpsStandardInternational => 'UPS',
+            self::UpsExpressSaverInternational => 'UPS',
+            self::UpsExpedited => 'UPS',
+            self::UpsAccessPointToHome => 'UPS',
+            self::UpsAccessPointToAccessPoint => 'UPS',
+            self::UpsHomeToAccessPoint => 'UPS',
+            self::UpsHomeToAccessPointInternational => 'UPS',
+            self::DpdCourier => 'DPD',
+            self::DpdCourierEurope => 'DPD',
+            self::DpdPickupHomeToPoint => 'DPD',
+            self::DpdCourierBy930 => 'DPD',
+            self::DpdCourierBy12 => 'DPD',
+            self::DpdPickupPointToPoint => 'DPD',
+            self::DpdMaxInternational => 'DPD',
+            self::DpdAllegroSmart => 'DPD',
+            self::DpdPickupEurope => 'DPD',
+            self::DpdPickupPointToHome => 'DPD',
+            self::DpdPickupHomeToMachine => 'DPD',
+            self::DpdPickupPointToMachine => 'DPD',
+            self::InPostPaczkomatAllegroSmart => 'INPOST',
+            self::InPostPaczkomat => 'INPOST',
+            self::InPostCourier => 'INPOST',
+            self::InPostPaczkomatToHome => 'INPOST',
+            self::InPostInternationalHomeToPoint => 'INPOST',
+            self::InPostInternationalPaczkomat => 'INPOST',
+            self::InPostFastReturnsPaczkomatToHome => 'INPOST',
+            self::OrlenPaczkaPointToPoint => 'ORLEN',
+            self::OrlenPaczkaHomeToPoint => 'ORLEN',
+            self::PocztexCourierHomeToHome => 'POCZTA',
+            self::PocztexCourierBy9 => 'POCZTA',
+            self::PocztexCourierBy12 => 'POCZTA',
+            self::PocztexCourierBy17 => 'POCZTA',
+            self::PocztexCourierHomeToPoint => 'POCZTA',
+            self::PocztexPointToHome => 'POCZTA',
+            self::PocztexPointToPoint => 'POCZTA',
+            self::PocztexAllegroSmart => 'POCZTA',
+            self::PocztexAllegroSmartPointToPoint => 'POCZTA',
+            self::PocztexCargo => 'POCZTA',
             self::PocztaPolskaUkraine => 'POCZTA',
-
-            self::DhlParcelCourier, self::DhlParcelCourierBy12, self::DhlParcelCourierBy9,
-            self::DhlPopPointToHome => 'DHL',
+            self::DhlParcelCourier => 'DHL',
+            self::DhlParcelCourierBy12 => 'DHL',
+            self::DhlParcelCourierBy9 => 'DHL',
             self::DhlPopHomeToPoint => 'DHL_PARCEL',
+            self::DhlPopPointToHome => 'DHL',
             self::DhlAlsendoInternationalWarehouseToHome => 'DHL_DE',
-            self::DhlParcelConnectHomeToHome, self::DhlParcelConnectHomeToPoint => 'DHL_INT',
-
+            self::DhlParcelConnectHomeToHome => 'DHL_INT',
+            self::DhlParcelConnectHomeToPoint => 'DHL_INT',
             self::RabenInternational => 'RABEN',
             self::GeisCargo => 'KEX',
-            self::FedExCourier, self::FedExInternationalEconomy => 'FEDEX',
-
-            self::GlsInternational, self::GlsCourier, self::GlsDomesticHomeToHome,
-            self::GlsDomesticHomeToPoint, self::GlsDomesticPointToHome,
-            self::GlsInternationalHomeToHome, self::GlsInternationalHomeToPoint,
-            self::GlsInternationalPointToHome, self::GlsInternationalImportPointToHome => 'GLS',
-
-            self::HellmannDomestic, self::HellmannInternational => 'HELLMANN',
+            self::FedExCourier => 'FEDEX',
+            self::FedExInternationalEconomy => 'FEDEX',
+            self::AlsendoDpdGermany => 'DPD',
+            self::GlsInternational => 'GLS',
+            self::GlsCourier => 'GLS',
+            self::GlsDomesticHomeToHome => 'GLS',
+            self::GlsDomesticHomeToPoint => 'GLS',
+            self::GlsDomesticPointToHome => 'GLS',
+            self::GlsInternationalHomeToHome => 'GLS',
+            self::GlsInternationalHomeToPoint => 'GLS',
+            self::GlsInternationalPointToHome => 'GLS',
+            self::GlsInternationalImportPointToHome => 'GLS',
+            self::HellmannDomestic => 'HELLMANN',
+            self::HellmannInternational => 'HELLMANN',
             self::RhenusLogistics => 'RHENUS',
-            self::GeodisDomestic, self::GeodisInternational => 'PEKAES',
-            self::AmbroExpress, self::AmbroExpressInternational => 'AMBRO',
-
-            self::AlsendoInternationalCblWarehouseToHome, self::AlsendoInternationalCblWarehouseToPoint => 'CBL',
-            self::AlsendoInternationalPpCblPointToHome, self::AlsendoInternationalPpCblPointToPoint => 'PP_CBL',
-            self::PacketaLinehaulPointToHome, self::PacketaLinehaulPointToPoint => 'PP_PACKETA',
-            self::PacketaWarehouseToHome, self::PacketaWarehouseToPoint => 'PACKETA',
-        };
+            self::GeodisDomestic => 'PEKAES',
+            self::GeodisInternational => 'PEKAES',
+            self::AmbroExpress => 'AMBRO',
+            self::AmbroExpressInternational => 'AMBRO',
+            self::AlsendoInternationalCblWarehouseToHome => 'CBL',
+            self::AlsendoInternationalCblWarehouseToPoint => 'CBL',
+            self::AlsendoInternationalPpCblPointToHome => 'PP_CBL',
+            self::AlsendoInternationalPpCblPointToPoint => 'PP_CBL',
+            self::PacketaLinehaulPointToHome => 'PP_PACKETA',
+            self::PacketaLinehaulPointToPoint => 'PP_PACKETA',
+            self::PacketaWarehouseToHome => 'PACKETA',
+            self::PacketaWarehouseToPoint => 'PACKETA',
+        ];
     }
 }

@@ -6,7 +6,7 @@ namespace AlsendoOne\SDK\Exception;
 
 use AlsendoOne\SDK\Http\Response;
 
-class ApiException extends ApaczkaException
+class ApiException extends AlsendoException
 {
     private Response $response;
 

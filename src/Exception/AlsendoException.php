@@ -6,6 +6,6 @@ namespace AlsendoOne\SDK\Exception;
 
 use RuntimeException;
 
-class ApaczkaException extends RuntimeException
+class AlsendoException extends RuntimeException
 {
 }

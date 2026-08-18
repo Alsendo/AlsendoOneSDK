@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace AlsendoOne\SDK\Tests\Unit;
 
-use AlsendoOne\SDK\ApaczkaClient;
-use AlsendoOne\SDK\ApaczkaClientInterface;
+use AlsendoOne\SDK\AlsendoClient;
+use AlsendoOne\SDK\AlsendoClientInterface;
 use AlsendoOne\SDK\DTO\Request\CustomerRegisterRequest;
 use AlsendoOne\SDK\DTO\Response\AccessPoint;
 use AlsendoOne\SDK\DTO\Response\DispatchCodeResponse;
@@ -18,21 +18,21 @@ use AlsendoOne\SDK\DTO\Response\TrackingResponse;
 use AlsendoOne\SDK\DTO\Response\TurnInResponse;
 use AlsendoOne\SDK\DTO\Response\Valuation;
 use AlsendoOne\SDK\DTO\Response\WaybillResponse;
-use AlsendoOne\SDK\Enum\Service;
 use AlsendoOne\SDK\Exception\ApiException;
 use AlsendoOne\SDK\Http\HttpClientInterface;
 use AlsendoOne\SDK\Http\Response;
+use AlsendoOne\SDK\Type\Service;
 use PHPUnit\Framework\TestCase;
 
-class ApaczkaClientTest extends TestCase
+class AlsendoClientTest extends TestCase
 {
     private HttpClientInterface $httpClient;
-    private ApaczkaClient $client;
+    private AlsendoClient $client;
 
     protected function setUp(): void
     {
         $this->httpClient = $this->createMock(HttpClientInterface::class);
-        $this->client = new ApaczkaClient(
+        $this->client = new AlsendoClient(
             'test_app_id',
             'test_app_secret',
             $this->httpClient,
@@ -105,7 +105,7 @@ class ApaczkaClientTest extends TestCase
         $this->assertSame(123, $result->getId());
         $this->assertSame('new', $result->getStatus());
         $this->assertSame('DPD', $result->getSupplier());
-        $this->assertSame(Service::InPostPaczkomat, $result->getService());
+        $this->assertSame(Service::from(Service::InPostPaczkomat), $result->getService());
         $this->assertNotNull($result->getPickup());
         $this->assertSame('BOX_MACHINE', $result->getPickup()->getType());
         $this->assertNull($result->getPickup()->getAddressId());
@@ -235,9 +235,9 @@ class ApaczkaClientTest extends TestCase
         $result = $this->client->getValuation(['service_id' => 41]);
 
         $this->assertInstanceOf(Valuation::class, $result);
-        $this->assertNotNull($result->getPriceForService(Service::InPostPaczkomat));
-        $this->assertSame(1500, $result->getPriceForService(Service::InPostPaczkomat)->getPrice());
-        $this->assertSame(1845, $result->getPriceForService(Service::InPostPaczkomat)->getPriceGross());
+        $this->assertNotNull($result->getPriceForService(Service::from(Service::InPostPaczkomat)));
+        $this->assertSame(1500, $result->getPriceForService(Service::from(Service::InPostPaczkomat))->getPrice());
+        $this->assertSame(1845, $result->getPriceForService(Service::from(Service::InPostPaczkomat))->getPriceGross());
     }
 
     public function testGetPickupHours(): void
@@ -467,7 +467,7 @@ class ApaczkaClientTest extends TestCase
 
     public function testClientImplementsInterface(): void
     {
-        $this->assertInstanceOf(ApaczkaClientInterface::class, $this->client);
+        $this->assertInstanceOf(AlsendoClientInterface::class, $this->client);
     }
 
     public function testApiErrorThrowsApiException(): void
@@ -516,9 +516,9 @@ class ApaczkaClientTest extends TestCase
         $result = $this->client->getValuation(['service_id' => 41]);
 
         $this->assertCount(2, $result->getPriceTable());
-        $known = $result->getPriceForService(Service::InPostPaczkomat);
+        $known = $result->getPriceForService(Service::from(Service::InPostPaczkomat));
         $this->assertNotNull($known);
-        $this->assertSame(Service::InPostPaczkomat, $known->getService());
+        $this->assertSame(Service::from(Service::InPostPaczkomat), $known->getService());
 
         $unknown = $result->getPriceTable()[99999];
         $this->assertNull($unknown->getService());
@@ -557,7 +557,7 @@ class ApaczkaClientTest extends TestCase
 
     public function testBaseUrlTrailingSlashHandled(): void
     {
-        $client = new ApaczkaClient('id', 'secret', $this->httpClient, 'https://api.example.com/api/v2');
+        $client = new AlsendoClient('id', 'secret', $this->httpClient, 'https://api.example.com/api/v2');
 
         $this->httpClient->method('post')
             ->willReturnCallback(function (string $url) {

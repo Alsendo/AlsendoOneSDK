@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AlsendoOne\SDK\Tests\Unit\Http;
 
-use AlsendoOne\SDK\ApaczkaClient;
+use AlsendoOne\SDK\AlsendoClient;
 use AlsendoOne\SDK\Http\GuzzleHttpClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -23,7 +23,7 @@ class GuzzleHttpClientTest extends TestCase
 
         $userAgent = $history[0]['request']->getHeaderLine('User-Agent');
         $this->assertSame(
-            sprintf('AlsendoOneSDK/%s PHP/%s', ApaczkaClient::version(), PHP_VERSION),
+            sprintf('AlsendoOneSDK/%s PHP/%s', AlsendoClient::version(), PHP_VERSION),
             $userAgent
         );
     }
