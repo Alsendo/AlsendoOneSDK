@@ -123,16 +123,25 @@ class Shipment
         return $this->isNstd;
     }
 
+    /**
+     * Net price in grosze (1 PLN = 100 groszy).
+     */
     public function getPrice(): int
     {
         return $this->price;
     }
 
+    /**
+     * Shipment-level VAT as serialized under the "price_vat" key.
+     */
     public function getPriceVat(): int
     {
         return $this->priceVat;
     }
 
+    /**
+     * Gross price in grosze (1 PLN = 100 groszy).
+     */
     public function getPriceGross(): int
     {
         return $this->priceGross;

@@ -83,11 +83,17 @@ class ValuationPrice
         return $this->service;
     }
 
+    /**
+     * Net price in grosze (1 PLN = 100 groszy).
+     */
     public function getPrice(): int
     {
         return $this->price;
     }
 
+    /**
+     * Gross price in grosze (1 PLN = 100 groszy).
+     */
     public function getPriceGross(): int
     {
         return $this->priceGross;

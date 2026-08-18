@@ -233,26 +233,44 @@ class Order
         return $this->receiver;
     }
 
+    /**
+     * Creation timestamp in "Y-m-d H:i:s" format (no offset, Europe/Warsaw
+     * time). Note the tracking endpoint uses ISO 8601 instead.
+     */
     public function getCreated(): string
     {
         return $this->created;
     }
 
+    /**
+     * Delivery timestamp in "Y-m-d H:i:s" format (Europe/Warsaw), or null.
+     */
     public function getDelivered(): ?string
     {
         return $this->delivered;
     }
 
+    /**
+     * Net price in grosze (1 PLN = 100 groszy). The API serializes the
+     * value as a numeric string; the SDK casts it to int.
+     */
     public function getPrice(): int
     {
         return $this->price;
     }
 
+    /**
+     * VAT rate (e.g. 23), not an amount — as serialized by the API under
+     * the order-level "price_var" key.
+     */
     public function getPriceVat(): int
     {
         return $this->priceVat;
     }
 
+    /**
+     * Gross price in grosze (1 PLN = 100 groszy).
+     */
     public function getPriceGross(): int
     {
         return $this->priceGross;

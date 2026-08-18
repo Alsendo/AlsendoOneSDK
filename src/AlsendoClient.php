@@ -146,6 +146,12 @@ class AlsendoClient implements AlsendoClientInterface
     /**
      * Get price valuation for order parameters.
      *
+     * When the order carries a service_id, the price table contains that
+     * single service; without it the API returns prices for all services
+     * eligible for the given parameters. If nothing can be quoted at all,
+     * the API responds with an error envelope ("Brak wyceny dla podanych
+     * parametrów zamówienia.") and an {@see ApiException} is thrown.
+     *
      * @param OrderRequest|array<string, mixed> $orderData Order data for valuation
      * @throws ApiException
      */
