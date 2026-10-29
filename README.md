@@ -5,7 +5,7 @@
 [![PHP Version](https://img.shields.io/packagist/php-v/alsendo/alsendo-one-sdk.svg)](https://packagist.org/packages/alsendo/alsendo-one-sdk)
 [![License](https://img.shields.io/packagist/l/alsendo/alsendo-one-sdk.svg)](https://github.com/Alsendo/AlsendoOneSDK/blob/main/LICENSE)
 
-Official PHP client for [Apaczka API v2](https://www.apaczka.pl/api/v2/). Ship parcels with 20+ couriers through a single integration.
+Official PHP client for [Apaczka API v2](https://api-docs.apaczka.pl/introduction). Ship parcels with 20+ couriers through a single integration.
 
 ## Requirements
 
